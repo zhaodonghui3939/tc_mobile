@@ -27,7 +27,7 @@ class Record(val record:String) extends Serializable{
 }
 object BaseComputing extends Serializable{
 
-  //转化为LabelPoint
+  //转化为LabelPoint dly 123 4 5
   def toLablePoint(data:RDD[(String,Array[Double])],label:Set[String]):RDD[(String,LabeledPoint)] = {
     data.map(line => {
       var s = new LabeledPoint(0.0,Vectors.dense(line._2))

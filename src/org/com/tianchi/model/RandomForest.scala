@@ -3,6 +3,7 @@ package org.com.tianchi.data.model
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.RandomForest
 import org.apache.spark.rdd.RDD
+//杨木收到没
 class RandomForest(data:RDD[LabeledPoint]) {
   def run = {
     val numClasses = 2

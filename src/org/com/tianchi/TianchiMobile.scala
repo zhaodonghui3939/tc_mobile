@@ -4,12 +4,10 @@ import org.apache.spark.SparkContext
 import org.com.tianchi.data.base.BaseComputing
 import org.com.tianchi.data.feature.{UserItemFeatures, UserFeatures, ItemFeatures}
 import org.com.tianchi.data.global.Para
-import org.com.tianchi.data.model.LR
 import org.com.tianchi.data.model.{SVM,LR,GBRT,RandomForest}
 import org.com.tianchi.data.sample.SampleBase
 
 object TianchiMobile {
-
   def main(args: Array[String]) {
     val sc = new SparkContext()
     val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).cache()
@@ -50,9 +48,6 @@ object TianchiMobile {
     val predict_svm = BaseComputing.svmPredict(featuresS,model_svm,600)
     val f_svm = BaseComputing.calFvalue(predict_svm,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
     //测试gbrt的性能
-    //test
-    val pp = model_gbrt.predict(featuresS.map(_._2.features))
-    model_gbrt.treeWeights
     val predict_gbrt = BaseComputing.gbrtPredict(featuresS,model_gbrt,600)
     val f_gbrt = BaseComputing.calFvalue(predict_svm,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
 
@@ -64,12 +59,10 @@ object TianchiMobile {
     val test_label_item = BaseComputing.getBuyLabel(data_user,"2014-12-18") //获取12月18号的标签
     val test_feature = BaseComputing.toLablePoint(test_join_features,test_label_item) //获取标签数据
 
-    //预测
+    //测试集合
     val test_featuresS = BaseComputing.getSelectFeatureData(test_feature,data_item_real).cache()
     val test_predict = BaseComputing.lrPredict(test_featuresS,model_lbfgs,600)
     val test_f = BaseComputing.calFvalue(test_predict,test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
-
-
   }
 
 }

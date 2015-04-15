@@ -10,10 +10,10 @@ class RandomForest(data:RDD[LabeledPoint]) {
     val categoricalFeaturesInfo = Map[Int, Int]()
     val numTrees = 50 // Use more in practice.
     val featureSubsetStrategy = "auto" // Let the algorithm choose.
-    val impurity = "gini"
+    val impurity = "variance"
     val maxDepth = 5
     val maxBins = 32
-    RandomForest.trainClassifier(data, numClasses, categoricalFeaturesInfo,
+    RandomForest.trainRegressor(data, categoricalFeaturesInfo,
       numTrees, featureSubsetStrategy, impurity, maxDepth, maxBins)
   }
 }

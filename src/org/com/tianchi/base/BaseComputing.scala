@@ -10,7 +10,7 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
-import org.apache.spark.mllib.tree.model.GradientBoostedTreesModel
+import org.apache.spark.mllib.tree.model.{RandomForestModel, GradientBoostedTreesModel}
 //一定要序列化
 object BaseComputing extends Serializable{
   //转化为LabelPoint dly 123 4 5
@@ -56,7 +56,14 @@ object BaseComputing extends Serializable{
 
   def gbrtPredict(data:RDD[(String,LabeledPoint)],model:GradientBoostedTreesModel,num:Int):Array[(String,Double)] = {
     data.map{case (userItem,LabeledPoint(label,features)) => {
-      val prediction = model.predict(features) //做了log处理
+      val prediction = model.predict(features)
+      (prediction,(userItem,label))
+    }}.top(num).map(_._2)
+  }
+
+  def rfPredict(data:RDD[(String,LabeledPoint)],model:RandomForestModel,num:Int):Array[(String,Double)] = {
+    data.map{case (userItem,LabeledPoint(label,features)) => {
+      val prediction = model.predict(features)
       (prediction,(userItem,label))
     }}.top(num).map(_._2)
   }

@@ -1,8 +1,5 @@
 package org.com.tianchi.data.global
 
-/**
- * Created by closure on 15/4/13.
- */
 object Para {
   val path_data_user: String = "/data/tianchi/tianchi_mobile_recommend_train_user.csv"
   val path_data_item: String = "/data/tianchi/tianchi_mobile_recommend_train_item.csv"

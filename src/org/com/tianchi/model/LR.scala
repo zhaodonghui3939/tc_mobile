@@ -1,14 +1,10 @@
 package org.com.tianchi.data.model
 
-import org.apache.spark.ml.classification.LogisticRegressionModel
+
 import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, LogisticRegressionWithSGD}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-
-/**
- * Created by closure on 15/4/13.
- */
 class LR(data:RDD[LabeledPoint]) {
   //是否有参数调优的可能行
   //进行log话处理

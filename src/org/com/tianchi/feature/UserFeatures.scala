@@ -1,8 +1,7 @@
 package org.com.tianchi.data.feature
 
 import org.apache.spark.rdd.RDD
-import org.com.tianchi.data.base.Record
-
+import org.com.tianchi.base.Record
 import scala.collection.mutable.ArrayBuffer
 class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
   private def stringToInt(date: String): Int = {

@@ -5,28 +5,13 @@ package org.com.tianchi.data.base
  * 记录由数据结构保存
  */
 
-import org.apache.spark.mllib.classification.LogisticRegressionModel
+import org.apache.spark.mllib.classification.{SVMModel, LogisticRegressionModel}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
+import org.com.tianchi.base.Record
 //一定要序列化
-class Record(val record:String) extends Serializable{
-  private def stringToInt(date: String): Int = {
-    val date1 = date.split(" ")(0)
-    (date1.split("-")(1).toInt - 11) * 30 * 24 + (date1.split("-")(2).toInt - 18) * 24 + date.split(" ")(1).toInt
-  }
-  override def toString()={
-    record
-  }
-  val userId = record.split(",")(0);
-  val itemId = record.split(",")(1);
-  val behavior = record.split(",")(2);
-  val geohash = record.split(",")(3);
-  val category = record.split(",")(4);
-  val time = stringToInt(record.split(",")(5))
-}
 object BaseComputing extends Serializable{
-
   //转化为LabelPoint dly 123 4 5
   def toLablePoint(data:RDD[(String,Array[Double])],label:Set[String]):RDD[(String,LabeledPoint)] = {
     data.map(line => {
@@ -44,23 +29,37 @@ object BaseComputing extends Serializable{
     data.map(_.split(",")(0)).collect().toSet
   }
 
-  //逻辑回归预测
-  def lrPredict(data:RDD[(String,LabeledPoint)],model:LogisticRegressionModel,threshold:Double):RDD[(String,Double,Double)] = {
+  //逻辑回归预测,num为预测的规模
+  def lrPredict(data:RDD[(String,LabeledPoint)],model:LogisticRegressionModel,num:Int):Array[(String,Double)] = {
     data.map{case (userItem,LabeledPoint(label,features)) => {
-      val prediction = model.setThreshold(threshold).predict(Vectors.dense(features.toArray.map(line => Math.log(line + 1))))
-      (userItem,label,prediction)
-    }}
+      val prediction = model.clearThreshold().predict(Vectors.dense(features.toArray.map(line => Math.log(line + 1)))) //做了log处理
+      (prediction,(userItem,label))
+    }}.top(num).map(_._2)
   }
   //计算F值
-  def calFvalue(data:RDD[(String,Double,Double)],buyedNextDay:Set[String]):String = {
-    val count = data.filter(_._3 == 1.0).count();
+  def calFvalue(data:Array[(String,Double)],buyedNextDay:Set[String]):String = {
+    val count = data.size
     val orgin = buyedNextDay.size
-    val acc = data.filter(_._2 == 1).filter(_._3 == 1).count()
+    val acc = data.filter(_._2 == 1.0).size
     val accuracy = acc.toDouble/count;
     val recall = acc.toDouble/orgin;
-    "predict_num:"+count+" accuracy:"+accuracy+" recall:"+recall+ " F1:"+2 * (recall*accuracy)/(accuracy + recall)
+    "predict_num:"+count+" accuracy:"+accuracy+" recall:"+recall+ " F1:"+ 2 * (recall*accuracy)/(accuracy + recall)
   }
 
+  def svmPredict(data:RDD[(String,LabeledPoint)],model:SVMModel,num:Int):Array[(String,Double)] = {
+    data.map{case (userItem,LabeledPoint(label,features)) => {
+      val prediction = model.clearThreshold().predict(Vectors.dense(features.toArray.map(line => Math.log(line + 1)))) //做了log处理
+      (prediction,(userItem,label))
+    }}.top(num).map(_._2)
+  }
+
+  def gbrtPredict(data:RDD[(String,LabeledPoint)],model:GradientBoostedTreesModel,num:Int):Array[(String,Double)] = {
+    data.map{case (userItem,LabeledPoint(label,features)) => {
+      val prediction = model.predict(features)) //做了log处理
+      (prediction,(userItem,label))
+    }}.top(num).map(_._2)
+
+  }
 
   def getBuyLabel(data:RDD[String],date:String):Set[String]={
     data.filter(_.split(",")(5).split(" ")(0).equals(date)).

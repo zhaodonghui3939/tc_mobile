@@ -40,16 +40,21 @@ object TianchiMobile {
     val model_lbfgs = new LR(sample).runLBFGS;
     val model_svm = new SVM(sample).run
     val model_gbrt = new GBRT(sample).run
+    val model_rf = new RandomForest(sample).run
 
     val featuresS = BaseComputing.getSelectFeatureData(feature,data_item_real).cache()
     //测试逻辑回归
     val predict = BaseComputing.lrPredict(featuresS,model_lbfgs,600) //逻辑回归预测
-    val f = BaseComputing.calFvalue(predict,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
+    val f_lr = BaseComputing.calFvalue(predict,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
     //测试svm的性能
     val predict_svm = BaseComputing.svmPredict(featuresS,model_svm,600)
-    val f = BaseComputing.calFvalue(predict_svm,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
+    val f_svm = BaseComputing.calFvalue(predict_svm,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
     //测试gbrt的性能
-
+    //test
+    val pp = model_gbrt.predict(featuresS.map(_._2.features))
+    model_gbrt.treeWeights
+    val predict_gbrt = BaseComputing.gbrtPredict(featuresS,model_gbrt,600)
+    val f_gbrt = BaseComputing.calFvalue(predict_svm,label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
 
     //测试集特征构造和测试
     val test_feature_user_item = new UserItemFeatures(data_feature_user_item,Para.test_start_date,Para.test_end_date).run().cache()

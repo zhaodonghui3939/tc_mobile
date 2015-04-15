@@ -10,13 +10,13 @@ class LR(data:RDD[LabeledPoint]) {
   //进行log话处理
   private val dataLog =  data.map(line =>
     new LabeledPoint(line.label,Vectors.dense(line.features.toArray.map(line => Math.log(1 + line)))))
-
+  // LBFS形势训练模型
   def runLBFGS = {
     new LogisticRegressionWithLBFGS()
       .setNumClasses(2)
       .run(dataLog)
   }
-
+  //SGD方式训练模型
   def runSGD = {
     new LogisticRegressionWithSGD().run(dataLog)
   }

@@ -39,7 +39,7 @@ object TianchiMobile {
     val model_svm = new SVM(sample).run
     val model_gbrt = new GBRT(sample).run
     val model_rf = new RandomForest(sample).run
-    
+
     val featuresS = BaseComputing.getSelectFeatureData(feature,data_item_real).cache()
     //测试逻辑回归
     val predict = BaseComputing.lrPredict(featuresS,model_lbfgs,600) //逻辑回归预测
@@ -70,6 +70,5 @@ object TianchiMobile {
     //测试
     val test_predict_rf = BaseComputing.rfPredict(test_featuresS,model_rf,500)
     val test_rf = BaseComputing.calFvalue(test_predict_rf,test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
-
   }
 }

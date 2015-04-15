@@ -1,14 +1,7 @@
 package org.com.tianchi.data.sample
-
-import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
-
-/**
- * Created by closure on 15/4/15.
- */
 object SampleBase {
-  //by 老杨
   //正负样本采样比例
   def globalSample(data:RDD[(String,LabeledPoint)],rate:Double): RDD[LabeledPoint]= {
     val postive = data.filter(_._2.label == 1.0).count();

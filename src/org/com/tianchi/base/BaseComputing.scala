@@ -1,10 +1,4 @@
 package org.com.tianchi.data.base
-/**
- * Created by closure on 15/4/14.
- * 构造训练数据集
- * 记录由数据结构保存
- */
-
 import org.apache.spark.mllib.classification.{SVMModel, LogisticRegressionModel}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint

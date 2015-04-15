@@ -14,7 +14,7 @@ object TianchiMobile {
     val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).cache()
     val data_item = sc.textFile(Para.path_data_item).filter(!_.contains("item_id"))
     val data_item_real = BaseComputing.getItemSet(data_item);
-    //用户对商品的行为集合，按照时间排序 微软
+    //用户对商品的行为集合，按照时间排序 计算方便
     val data_feature_user_item = BaseComputing.getUserItemData(data_user)
     /*构造训练集*/
     //用户的行为集合

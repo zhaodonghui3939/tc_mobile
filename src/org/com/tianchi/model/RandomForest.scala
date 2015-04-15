@@ -6,7 +6,6 @@ import org.apache.spark.rdd.RDD
 //随机森林注释测试1
 class RandomForest(data:RDD[LabeledPoint]) {
   def run = {
-    val numClasses = 2
     val categoricalFeaturesInfo = Map[Int, Int]()
     val numTrees = 50 // Use more in practice.
     val featureSubsetStrategy = "auto" // Let the algorithm choose.

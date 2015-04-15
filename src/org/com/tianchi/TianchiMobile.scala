@@ -14,9 +14,8 @@ object TianchiMobile {
     val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).cache()
     val data_item = sc.textFile(Para.path_data_item).filter(!_.contains("item_id"))
     val data_item_real = BaseComputing.getItemSet(data_item);
-    //用户对商品的行为集合，按照时间排序
+    //用户对商品的行为集合，按照时间排序 微软
     val data_feature_user_item = BaseComputing.getUserItemData(data_user)
-
     /*构造训练集*/
     //用户的行为集合
     val data_feature_user = BaseComputing.getUserData(data_user)
@@ -40,8 +39,6 @@ object TianchiMobile {
     val featuresS = BaseComputing.getSelectFeatureData(feature,data_item_real).cache()
     val predict = BaseComputing.lrPredict(featuresS,model_lbfgs,0.95)
     val f = BaseComputing.calFvalue(predict,label_item.filter(line => data_item_real.contains(line.split("_")(1))))
-
-
 
     //测试集特征构造和测试
     val test_feature_user_item = new UserItemFeatures(data_feature_user_item,Para.test_start_date,Para.test_end_date).run().cache()

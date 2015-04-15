@@ -38,8 +38,10 @@ object TianchiMobile {
     val sample = SampleBase.specifySample(feature,data_item_real,20).repartition(6).cache()
     val model_lbfgs = new LR(sample).runLBFGS;
     val featuresS = BaseComputing.getSelectFeatureData(feature,data_item_real).cache()
-    val predict = BaseComputing.lrPredict(featuresS,model_lbfgs,0.99)
+    val predict = BaseComputing.lrPredict(featuresS,model_lbfgs,0.95)
     val f = BaseComputing.calFvalue(predict,label_item.filter(line => data_item_real.contains(line.split("_")(1))))
+
+
 
     //测试集特征构造和测试
     val test_feature_user_item = new UserItemFeatures(data_feature_user_item,Para.test_start_date,Para.test_end_date).run().cache()
@@ -53,7 +55,6 @@ object TianchiMobile {
     val test_featuresS = BaseComputing.getSelectFeatureData(test_feature,data_item_real).cache()
     val test_predict = BaseComputing.lrPredict(test_featuresS,model_lbfgs,0.987)
     val test_f = BaseComputing.calFvalue(test_predict,label_item.filter(line => data_item_real.contains(line.split("_")(1))))
-    test_f
   }
 
 }

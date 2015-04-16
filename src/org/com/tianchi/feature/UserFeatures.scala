@@ -2,18 +2,22 @@ package org.com.tianchi.feature
 
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
+
 import scala.collection.mutable.ArrayBuffer
 
-class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
+class UserFeatures(data: RDD[(String, Array[Record])], begin: String, end: String) extends Serializable {
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
     (date1.split("-")(1).toInt - 11) * 30 * 24 + (date1.split("-")(2).toInt - 18) * 24 + date.split(" ")(1).toInt
   }
-  private val data_filtered:RDD[(String,Array[Record])] = data.map(line => {
-    (line._1,line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
-    ))}).filter(_._2.size > 0) //过滤数据
 
-  private def calUserFeatures(featuresData:Array[Record])={
+  private val data_filtered: RDD[(String, Array[Record])] = data.map(line => {
+    (line._1, line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
+    ))
+  }).filter(_._2.length > 0) //过滤数据
+
+  //noinspection FilterSize,SizeToLength,ComparingUnrelatedTypes
+  private def calUserFeatures(featuresData: Array[Record]) = {
     //用户的总的点击购买收藏和购物车
     val click_sum = featuresData.size //行为总数目
     val buy_sum = featuresData.filter(_.behavior.equals("4")).size
@@ -102,26 +106,26 @@ class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
     val cata_to_buy_5d = action_cata_5d.toDouble / (action_5d + 0.1)
 
     val features = ArrayBuffer[Double]()
-    features += (click_sum,buy_sum,favorite_sum,cart_sum,
-      last_visit,last_buy,last_favorite,last_cart,
-      first_visit,first_buy,
-      click_6h,click_12h,click_24h,click_3d,click_5d,
-      buy_24h,buy_3d,buy_5d,
-      favorite_6h,favorite_12h,favorite_24h,favorite_3d,favorite_5d,
-      cart_6h,cart_12h,cart_18h,cart_24h,
-      action_sum,action_6h,action_12h,action_24h,action_3d,action_5d,
-      click_to_buy,favorite_to_buy,
-      action_sum,action_6h,action_12h,action_24h,action_3d,action_5d,
-      action_buy_sum,action_buy_24h,action_buy_3d,action_buy_5d,
-      action_cata_sum,action_cata_24h,action_cata_3d,action_cata_5d,
-      action_to_buy_sum,action_to_buy_24h,action_to_buy_3d,action_to_buy_5d,
-      cata_to_buy_sum,cata_to_buy_24h,cata_to_buy_3d,cata_to_buy_5d
+    features +=(click_sum, buy_sum, favorite_sum, cart_sum,
+      last_visit, last_buy, last_favorite, last_cart,
+      first_visit, first_buy,
+      click_6h, click_12h, click_24h, click_3d, click_5d,
+      buy_24h, buy_3d, buy_5d,
+      favorite_6h, favorite_12h, favorite_24h, favorite_3d, favorite_5d,
+      cart_6h, cart_12h, cart_18h, cart_24h,
+      action_sum, action_6h, action_12h, action_24h, action_3d, action_5d,
+      click_to_buy, favorite_to_buy,
+      action_sum, action_6h, action_12h, action_24h, action_3d, action_5d,
+      action_buy_sum, action_buy_24h, action_buy_3d, action_buy_5d,
+      action_cata_sum, action_cata_24h, action_cata_3d, action_cata_5d,
+      action_to_buy_sum, action_to_buy_24h, action_to_buy_3d, action_to_buy_5d,
+      cata_to_buy_sum, cata_to_buy_24h, cata_to_buy_3d, cata_to_buy_5d
       )
     features.toArray
   }
 
-  def run():RDD[(String,Array[Double])] ={
-    data_filtered.map( line => (line._1,calUserFeatures(line._2)))
+  def run(): RDD[(String, Array[Double])] = {
+    data_filtered.map(line => (line._1, calUserFeatures(line._2)))
   }
 
 }

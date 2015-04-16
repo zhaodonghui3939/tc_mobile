@@ -2,6 +2,7 @@ package org.com.tianchi.feature
 
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
+
 import scala.collection.mutable.ArrayBuffer
 
 class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
@@ -11,12 +12,14 @@ class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
   }
   private val data_filtered:RDD[(String,Array[Record])] = data.map(line => {
     (line._1,line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
-    ))}).filter(_._2.size > 0) //过滤数据
+    ))
+  }).filter(_._2.length > 0) //过滤数据
 
   private def getUserItemGPS={
 
   }
 
+  //noinspection FilterSize,ComparingUnrelatedTypes,SizeToLength
   private def calItemFeatures(featuresData:Array[Record])={
     //用户的总的点击购买收藏和购物车
     val click_sum = featuresData.size //行为总数目

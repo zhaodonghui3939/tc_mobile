@@ -1,11 +1,10 @@
 package org.com.tianchi.base
 
-import org.apache.spark.mllib.classification.{SVMModel, LogisticRegressionModel}
+import org.apache.spark.mllib.classification.{LogisticRegressionModel, SVMModel}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.mllib.tree.model.{GradientBoostedTreesModel, RandomForestModel}
 import org.apache.spark.rdd.RDD
-import org.com.tianchi.base.Record
-import org.apache.spark.mllib.tree.model.{RandomForestModel, GradientBoostedTreesModel}
 
 //一定要序列化
 object BaseComputing extends Serializable {
@@ -29,47 +28,45 @@ object BaseComputing extends Serializable {
 
   //逻辑回归预测,num为预测的规模
   def lrPredict(data: RDD[(String, LabeledPoint)], model: LogisticRegressionModel, num: Int): Array[(String, Double)] = {
-    data.map { case (userItem, LabeledPoint(label, features)) => {
+    data.map { case (userItem, LabeledPoint(label, features)) =>
       val prediction = model.clearThreshold().predict(Vectors.dense(features.toArray.map(line => Math.log(line + 1)))) //做了log处理
       (prediction, (userItem, label))
-    }
     }.top(num).map(_._2)
   }
 
+  //noinspection SizeToLength,FilterSize
   //计算F值
   def calFvalue(data: Array[(String, Double)], buyedNextDay: Set[String]): String = {
     val count = data.size
     val orgin = buyedNextDay.size
     val acc = data.filter(_._2 == 1.0).size
-    val accuracy = acc.toDouble / count;
-    val recall = acc.toDouble / orgin;
+    val accuracy = acc.toDouble / count
+    val recall = acc.toDouble / orgin
     "predict_num:" + count + " accuracy:" + accuracy + " recall:" + recall + " F1:" + 2 * (recall * accuracy) / (accuracy + recall)
   }
 
   def svmPredict(data: RDD[(String, LabeledPoint)], model: SVMModel, num: Int): Array[(String, Double)] = {
-    data.map { case (userItem, LabeledPoint(label, features)) => {
+    data.map { case (userItem, LabeledPoint(label, features)) =>
       val prediction = model.clearThreshold().predict(Vectors.dense(features.toArray.map(line => Math.log(line + 1)))) //做了log处理
       (prediction, (userItem, label))
-    }
     }.top(num).map(_._2)
   }
 
   def gbrtPredict(data: RDD[(String, LabeledPoint)], model: GradientBoostedTreesModel, num: Int): Array[(String, Double)] = {
-    data.map { case (userItem, LabeledPoint(label, features)) => {
+    data.map { case (userItem, LabeledPoint(label, features)) =>
       val prediction = model.predict(features)
       (prediction, (userItem, label))
-    }
     }.top(num).map(_._2)
   }
 
   def rfPredict(data: RDD[(String, LabeledPoint)], model: RandomForestModel, num: Int): Array[(String, Double)] = {
-    data.map { case (userItem, LabeledPoint(label, features)) => {
+    data.map { case (userItem, LabeledPoint(label, features)) =>
       val prediction = model.predict(features)
       (prediction, (userItem, label))
-    }
     }.top(num).map(_._2)
   }
 
+  //noinspection ComparingUnrelatedTypes
   def getBuyLabel(data: RDD[String], date: String): Set[String] = {
     data.filter(_.split(",")(5).split(" ")(0).equals(date)).
       filter(_.split(",")(2).equals("4")).map(line => {
@@ -104,12 +101,12 @@ object BaseComputing extends Serializable {
            item: RDD[(String, Array[Double])],
            user: RDD[(String, Array[Double])]): RDD[(String, Array[Double])] = {
     //和物品进行join
-    val useritemJoinItem = userItem.map { case (userItem, features) => {
+    val useritemJoinItem = userItem.map { case (userItem, features) =>
       val item = userItem.split("_")(1)
-      (item, ((userItem, features)))
-    }}.join(item).map { case (item, ((userItem, userItemFeatures), itemFeatures)) => {
+      (item, (userItem, features))
+    }.join(item).map { case (item, ((userItem, userItemFeatures), itemFeatures)) =>
       (userItem, userItemFeatures ++ itemFeatures)
-    }}
+    }
     val userMap = user.collect().toMap
     useritemJoinItem.map(line => {
       val userid = line._1.split("_")(0)

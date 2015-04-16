@@ -1,7 +1,7 @@
 package org.com.tianchi.feature
 
 import org.apache.spark.rdd.RDD
-import org.com.tianchi.base.Record
-class CataFeatures(data:RDD[(String,Record)]) extends Serializable{
+import org.com.tianchi.base.UserRecord
+class CataFeatures(data:RDD[(String,UserRecord)]) extends Serializable{
 
 }

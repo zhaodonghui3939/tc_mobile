@@ -1,6 +1,6 @@
 package org.com.tianchi.base
 
-class Record(val record:String) extends Serializable{
+class UserRecord(val record:String) extends Serializable{
   //计算与18号0点的时间距离，精确到小时
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)

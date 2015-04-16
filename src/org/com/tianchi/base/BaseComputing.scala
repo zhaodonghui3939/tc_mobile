@@ -77,23 +77,28 @@ object BaseComputing extends Serializable {
   //返回(userid_itemid_itemCategory,Array[Record]),按照时间顺序排序
   def getUserItemData(data: RDD[String]) = {
     data.map(line => (line.split(",")(0) + "_" + line.split(",")(1) + "_" + line.split(",")(4), line)).
-      groupByKey().map(line => (line._1, line._2.toArray.map(new Record(_)) sortBy (_.time)))
+      groupByKey().map(line => (line._1, line._2.toArray.map(new UserRecord(_)) sortBy (_.time)))
+  }
+
+  def getItemGeoHash(data:RDD[String]) = {
+    data.map(line => (line.split(",")(0),line)).
+      groupByKey().map(line => (line._1,line._2.toArray.map(new ItemRecord(_))))
   }
 
   def getUserData(data: RDD[String]) = {
     data.map(line => (line.split(",")(0), line)).
-      groupByKey().map(line => (line._1, line._2.toArray.map(new Record(_)) sortBy (_.time)))
+      groupByKey().map(line => (line._1, line._2.toArray.map(new UserRecord(_)) sortBy (_.time)))
 
   }
 
   def getItemData(data: RDD[String]) = {
     data.map(line => (line.split(",")(1), line)).
-      groupByKey().map(line => (line._1, line._2.toArray.map(new Record(_)) sortBy (_.time)))
+      groupByKey().map(line => (line._1, line._2.toArray.map(new UserRecord(_)) sortBy (_.time)))
   }
 
   def getCategoryData(data: RDD[String]) = {
     data.map(line => (line.split(",")(4), line)).
-      groupByKey().map(line => (line._1, line._2.toArray.map(new Record(_)) sortBy (_.time)))
+      groupByKey().map(line => (line._1, line._2.toArray.map(new UserRecord(_)) sortBy (_.time)))
   }
 
   //特征join

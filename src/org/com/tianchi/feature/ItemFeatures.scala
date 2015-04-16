@@ -1,16 +1,16 @@
 package org.com.tianchi.feature
 
 import org.apache.spark.rdd.RDD
-import org.com.tianchi.base.Record
+import org.com.tianchi.base.UserRecord
 
 import scala.collection.mutable.ArrayBuffer
 
-class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
+class ItemFeatures(data:RDD[(String,Array[UserRecord])],begin:String,end:String) extends Serializable{
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
     (date1.split("-")(1).toInt - 11) * 30 * 24 + (date1.split("-")(2).toInt - 18) * 24 + date.split(" ")(1).toInt
   }
-  private val data_filtered:RDD[(String,Array[Record])] = data.map(line => {
+  private val data_filtered:RDD[(String,Array[UserRecord])] = data.map(line => {
     (line._1,line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
     ))
   }).filter(_._2.length > 0) //过滤数据
@@ -20,7 +20,7 @@ class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
   }
 
   //noinspection FilterSize,ComparingUnrelatedTypes,SizeToLength
-  private def calItemFeatures(featuresData:Array[Record])={
+  private def calItemFeatures(featuresData:Array[UserRecord])={
     //用户的总的点击购买收藏和购物车
     val click_sum = featuresData.size //行为总数目
     val buy_sum = featuresData.filter(_.behavior.equals("4")).size

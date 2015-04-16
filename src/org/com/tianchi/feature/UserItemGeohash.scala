@@ -3,6 +3,8 @@ package org.com.tianchi.feature
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.{ItemRecord, UserRecord}
 
+import scala.collection.mutable.ArrayBuffer
+
 class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
                       itemGeo: RDD[(String, Array[ItemRecord])], begin: String, end: String) {
 
@@ -89,7 +91,7 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
       else return count
     }
   }
-
+  //计算用户对商品的距离
   def getUserItemGeoFeatures():RDD[(String,Int)] = {
     getUserItemGeoHash().map {
       case (userItem, geohash) => {
@@ -97,7 +99,12 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
       }
     }.join(getItemGeoHash()).map {
       case (item, ((userItem, userGeo), itemGeo)) => {
-        (userGeo, dis(userGeo,itemGeo))
+        val s = itemGeo.split(",")
+        if(s.length > 1){
+          val a = ArrayBuffer[Int]();
+          for (c <- s) a += dis(userGeo,c)
+          (userGeo, a.min)
+        }else (userGeo, dis(userGeo,itemGeo))
       }
     }
   }

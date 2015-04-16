@@ -1,5 +1,4 @@
 package org.com.tianchi.data.model
-
 import org.apache.spark.mllib.classification.{SVMWithSGD}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint

@@ -30,7 +30,7 @@ object TianchiMobile {
     //计算用户特征集
     val feature_user = new UserFeatures(data_feature_user, Para.train_start_date, Para.train_end_date).run().cache()
     val join_features = BaseComputing.join(feature_user_item, feature_item, feature_user).cache() //特征进行join
-    val label_item = BaseComputing.getBuyLabel(data_user, "2014-12-17") //获取12月17号的标签
+    val label_item = BaseComputing.getBuyLabel(data_user, Para.train_label_date) //获取12月17号的标签
     val feature = BaseComputing.toLablePoint(join_features, label_item) //获取标签数据
     //采样训练
     val sample = SampleBase.globalSample(feature, 15).cache()

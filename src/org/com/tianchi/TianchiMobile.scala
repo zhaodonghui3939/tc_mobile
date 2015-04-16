@@ -1,4 +1,4 @@
-package org.com.tianchi.data
+package org.com.tianchi
 
 import org.apache.spark.SparkContext
 import org.com.tianchi.data.base.BaseComputing

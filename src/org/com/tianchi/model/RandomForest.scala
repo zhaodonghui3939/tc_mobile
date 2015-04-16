@@ -1,4 +1,4 @@
-package org.com.tianchi.data.model
+package org.com.tianchi.model
 
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.RandomForest

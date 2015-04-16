@@ -1,4 +1,4 @@
-package org.com.tianchi.data.model
+package org.com.tianchi.model
 import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, LogisticRegressionWithSGD}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint

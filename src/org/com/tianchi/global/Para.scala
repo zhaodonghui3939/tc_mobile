@@ -1,4 +1,4 @@
-package org.com.tianchi.data.global
+package org.com.tianchi.global
 
 object Para {
   val path_data_user: String = "/data/tianchi/tianchi_mobile_recommend_train_user.csv"

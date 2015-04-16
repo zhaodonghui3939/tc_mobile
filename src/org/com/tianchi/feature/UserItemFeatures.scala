@@ -1,4 +1,4 @@
-package org.com.tianchi.data.feature
+package org.com.tianchis.feature
 
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record

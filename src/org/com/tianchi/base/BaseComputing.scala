@@ -1,4 +1,4 @@
-package org.com.tianchi.data.base
+package org.com.tianchi.base
 
 import org.apache.spark.mllib.classification.{SVMModel, LogisticRegressionModel}
 import org.apache.spark.mllib.linalg.Vectors

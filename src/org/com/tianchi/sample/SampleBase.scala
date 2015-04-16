@@ -1,4 +1,4 @@
-package org.com.tianchi.data.sample
+package org.com.tianchi.sample
 
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD

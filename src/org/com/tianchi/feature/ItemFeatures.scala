@@ -92,7 +92,6 @@ class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
       favorite_24h,favorite_3d,favorite_5d,cart_24h,
       action_sum,action_6h,action_12h,action_24h,action_3d,action_5d,
       click_to_buy,favorite_to_buy,
-      action_sum,action_6h,action_12h,action_24h,action_3d,action_5d,
       action_buy_sum,action_buy_6h,action_buy_12h,action_buy_24h,action_buy_3d,action_buy_5d,
       action_to_buy_sum,action_to_buy_6h,action_to_buy_12h,action_to_buy_24h,action_to_buy_3d,action_to_buy_5d
       )

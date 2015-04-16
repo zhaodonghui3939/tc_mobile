@@ -1,11 +1,11 @@
 package org.com.tianchi
 
 import org.apache.spark.SparkContext
-import org.com.tianchi.data.base.BaseComputing
-import org.com.tianchi.data.feature.{UserItemFeatures, UserFeatures, ItemFeatures}
-import org.com.tianchi.data.global.Para
-import org.com.tianchi.data.model.{SVM,LR,GBRT,RandomForest}
-import org.com.tianchi.data.sample.SampleBase
+import org.com.tianchi.base.BaseComputing
+import org.com.tianchi.feature.{UserItemFeatures, UserFeatures, ItemFeatures}
+import org.com.tianchi.global.Para
+import org.com.tianchi.model.{SVM,LR,GBRT,RandomForest}
+import org.com.tianchi.sample.SampleBase
 
 object TianchiMobile {
   def main(args: Array[String]) {

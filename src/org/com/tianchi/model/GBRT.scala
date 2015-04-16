@@ -3,7 +3,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.GradientBoostedTrees
 import org.apache.spark.mllib.tree.configuration.BoostingStrategy
 import org.apache.spark.rdd.RDD
-import org.com.tianchi.data.global.Para
+import org.com.tianchi.global.Para
 //这里用regression的模型，分类无法获得权值
 class GBRT(data:RDD[LabeledPoint]) {
   def run()={

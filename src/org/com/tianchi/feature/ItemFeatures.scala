@@ -3,6 +3,7 @@ package org.com.tianchi.data.feature
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
 import scala.collection.mutable.ArrayBuffer
+
 class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
@@ -73,17 +74,17 @@ class ItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
     val action_buy_3d = featuresData.filter(_.behavior.equals("4")).filter(_.time >= stringToInt(end) - 24 * 3).map(_.userId).distinct.size
     val action_buy_5d = featuresData.filter(_.behavior.equals("4")).filter(_.time >= stringToInt(end) - 24 * 5).map(_.userId).distinct.size
 
-    val click_to_buy = buy_sum.toDouble / click_sum;
-    val favorite_to_buy = favorite_sum.toDouble / click_sum;
+    val click_to_buy = buy_sum.toDouble / click_sum
+    val favorite_to_buy = favorite_sum.toDouble / click_sum
 
-    val action_to_buy_sum = action_buy_sum.toDouble / (action_sum + 1);
-    val action_to_buy_6h = action_buy_6h.toDouble / (action_6h + 1);
-    val action_to_buy_12h = action_buy_12h.toDouble / (action_12h + 1);
-    val action_to_buy_24h = action_buy_24h.toDouble / (action_24h + 1);
-    val action_to_buy_3d = action_buy_3d.toDouble / (action_3d + 1);
-    val action_to_buy_5d = action_buy_5d.toDouble / (action_5d + 1);
+    val action_to_buy_sum = action_buy_sum.toDouble / (action_sum + 1)
+    val action_to_buy_6h = action_buy_6h.toDouble / (action_6h + 1)
+    val action_to_buy_12h = action_buy_12h.toDouble / (action_12h + 1)
+    val action_to_buy_24h = action_buy_24h.toDouble / (action_24h + 1)
+    val action_to_buy_3d = action_buy_3d.toDouble / (action_3d + 1)
+    val action_to_buy_5d = action_buy_5d.toDouble / (action_5d + 1)
 
-    val features = ArrayBuffer[Double]();
+    val features = ArrayBuffer[Double]()
     features += (click_sum,buy_sum,favorite_sum,cart_sum,
       last_visit,last_buy,last_favorite,last_cart,
       click_12h,click_24h,click_3d,click_5d,

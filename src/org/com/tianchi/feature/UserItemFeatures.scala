@@ -3,8 +3,9 @@ package org.com.tianchi.data.feature
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
 import scala.collection.mutable.ArrayBuffer
+
 class UserItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
-  //更具开始和结束日期获得数据
+  //根据开始和结束日期获得数据
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
     (date1.split("-")(1).toInt - 11) * 30 * 24 + (date1.split("-")(2).toInt - 18) * 24 + date.split(" ")(1).toInt
@@ -73,7 +74,6 @@ class UserItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String)
     val cart_12h = featuresData.filter(_.behavior.equals("3")).filter(_.time >= stringToInt(end) - 12).size
     val cart_18h = featuresData.filter(_.behavior.equals("3")).filter(_.time >= stringToInt(end) - 18).size
     val cart_24h = featuresData.filter(_.behavior.equals("3")).filter(_.time >= stringToInt(end) - 24).size
-
     val data = featuresData.map(_.time)
     val action_sum = data.distinct.size
     val action_6h = data.filter(_ >= stringToInt(end) - 6).distinct.size
@@ -82,10 +82,10 @@ class UserItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String)
     val action_3d = data.filter(_ >= stringToInt(end) - 24 * 3).distinct.size
     val action_5d = data.filter(_ >= stringToInt(end) - 24 * 5).distinct.size
 
-    val click_to_buy = buy_sum.toDouble / click_sum;
-    val favorite_to_buy = favorite_sum.toDouble / click_sum;
+    val click_to_buy = buy_sum.toDouble / click_sum
+    val favorite_to_buy = favorite_sum.toDouble / click_sum
 
-    val features = ArrayBuffer[Double]();
+    val features = ArrayBuffer[Double]()
     features += (click_sum,buy_sum,favorite_sum,cart_sum,
       first_visit,last_visit,first_buy,last_buy,last_favorite,last_cart,
       click_6h,click_12h,click_18h,click_24h,click_3d,click_5d,

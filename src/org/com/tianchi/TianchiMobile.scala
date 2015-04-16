@@ -12,7 +12,7 @@ object TianchiMobile {
     val sc = new SparkContext()
     val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).cache()
     val data_item = sc.textFile(Para.path_data_item).filter(!_.contains("item_id"))
-    val data_item_real = BaseComputing.getItemSet(data_item);
+    val data_item_real = BaseComputing.getItemSet(data_item)
     //用户对商品的行为集合，按照时间排序 计算方便
     val data_feature_user_item = BaseComputing.getUserItemData(data_user)
     /*构造训练集*/
@@ -35,7 +35,7 @@ object TianchiMobile {
     //采样训练
     val sample = SampleBase.globalSample(feature,15).cache()
     //不同模型测试
-    val model_lbfgs = new LR(sample).runLBFGS;
+    val model_lbfgs = new LR(sample).runLBFGS
     val model_svm = new SVM(sample).run
     val model_gbrt = new GBRT(sample).run
     val model_rf = new RandomForest(sample).run

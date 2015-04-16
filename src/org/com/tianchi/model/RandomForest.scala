@@ -6,7 +6,6 @@ import org.apache.spark.rdd.RDD
 
 
 //随机森林用regression的方法
-
 class RandomForest(data:RDD[LabeledPoint]) {
   def run = {
     val categoricalFeaturesInfo = Map[Int, Int]()

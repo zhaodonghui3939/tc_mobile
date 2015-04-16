@@ -3,6 +3,8 @@ package org.com.tianchi.data.feature
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
 import scala.collection.mutable.ArrayBuffer
+
+
 class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
@@ -17,7 +19,7 @@ class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
     val click_sum = featuresData.size //行为总数目
     val buy_sum = featuresData.filter(_.behavior.equals("4")).size
     val favorite_sum = featuresData.filter(_.behavior.equals("2")).size
-    val cart_sum = featuresData.filter(_.behavior.equals("4")).size
+    val cart_sum = featuresData.filter(_.behavior.equals("3")).size
     val first_visit = featuresData(0).time - stringToInt(begin)
     val last_visit = featuresData(featuresData.size - 1).time - stringToInt(begin)
 

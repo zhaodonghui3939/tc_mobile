@@ -1,12 +1,14 @@
 package org.com.tianchi.data.base
+
 import org.apache.spark.mllib.classification.{SVMModel, LogisticRegressionModel}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
 import org.apache.spark.mllib.tree.model.{RandomForestModel, GradientBoostedTreesModel}
+
 //一定要序列化
-object BaseComputing extends Serializable{
+object BaseComputing extends Serializable {
   //转化为LabelPoint dly 123 4 5
   def toLablePoint(data:RDD[(String,Array[Double])],label:Set[String]):RDD[(String,LabeledPoint)] = {
     data.map(line => {
@@ -19,7 +21,8 @@ object BaseComputing extends Serializable{
   def getSelectFeatureData(data:RDD[(String,LabeledPoint)],item:Set[String]) = {
     data.filter(line => item.contains(line._1.split("_")(1)))
   }
-  
+
+  //获取商品子集item_id,已去重
   def getItemSet(data:RDD[String]):Set[String]={
     data.map(_.split(",")(0)).collect().toSet
   }
@@ -31,6 +34,7 @@ object BaseComputing extends Serializable{
       (prediction,(userItem,label))
     }}.top(num).map(_._2)
   }
+
   //计算F值
   def calFvalue(data:Array[(String,Double)],buyedNextDay:Set[String]):String = {
     val count = data.size
@@ -69,6 +73,7 @@ object BaseComputing extends Serializable{
     }).distinct().collect().toSet
   }
 
+  //返回(userid_itemid_itemCategory,Array[Record]),按照时间顺序排序
   def getUserItemData(data:RDD[String])= {
     data.map(line => (line.split(",")(0) + "_" + line.split(",")(1)+"_"+line.split(",")(4), line)).
       groupByKey().map(line => (line._1, line._2.toArray.map(new Record(_))sortBy(_.time)))
@@ -105,4 +110,5 @@ object BaseComputing extends Serializable{
       (line._1,result.toArray)
     })
   }
+
 }

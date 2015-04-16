@@ -4,7 +4,6 @@ import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
 import scala.collection.mutable.ArrayBuffer
 
-
 class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
@@ -89,25 +88,27 @@ class UserFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) ext
     val action_cata_3d = featuresData.filter(_.time >= stringToInt(end) - 24 * 3).map(_.category).distinct.size
     val action_cata_5d = featuresData.filter(_.time >= stringToInt(end) - 24 * 5).map(_.category).distinct.size
 
-    val click_to_buy = buy_sum.toDouble / click_sum;
-    val favorite_to_buy = favorite_sum.toDouble / click_sum;
+    val click_to_buy = buy_sum.toDouble / click_sum
+    val favorite_to_buy = favorite_sum.toDouble / click_sum
 
-    val action_to_buy_sum = action_buy_sum.toDouble / (action_sum + 0.1);
-    val action_to_buy_24h = action_buy_24h.toDouble / (action_24h + 0.1);
-    val action_to_buy_3d = action_buy_3d.toDouble / (action_3d + 0.1);
-    val action_to_buy_5d = action_buy_5d.toDouble / (action_5d + 0.1);
+    val action_to_buy_sum = action_buy_sum.toDouble / (action_sum + 0.1)
+    val action_to_buy_24h = action_buy_24h.toDouble / (action_24h + 0.1)
+    val action_to_buy_3d = action_buy_3d.toDouble / (action_3d + 0.1)
+    val action_to_buy_5d = action_buy_5d.toDouble / (action_5d + 0.1)
 
-    val cata_to_buy_sum = action_cata_sum.toDouble / (action_sum + 0.1);
-    val cata_to_buy_24h = action_cata_24h.toDouble / (action_24h + 0.1);
-    val cata_to_buy_3d = action_cata_3d.toDouble / (action_3d + 0.1);
-    val cata_to_buy_5d = action_cata_5d.toDouble / (action_5d + 0.1);
+    val cata_to_buy_sum = action_cata_sum.toDouble / (action_sum + 0.1)
+    val cata_to_buy_24h = action_cata_24h.toDouble / (action_24h + 0.1)
+    val cata_to_buy_3d = action_cata_3d.toDouble / (action_3d + 0.1)
+    val cata_to_buy_5d = action_cata_5d.toDouble / (action_5d + 0.1)
 
-    val features = ArrayBuffer[Double]();
+    val features = ArrayBuffer[Double]()
     features += (click_sum,buy_sum,favorite_sum,cart_sum,
       last_visit,last_buy,last_favorite,last_cart,
-      click_12h,click_24h,click_3d,click_5d,
+      first_visit,first_buy,
+      click_6h,click_12h,click_24h,click_3d,click_5d,
       buy_24h,buy_3d,buy_5d,
-      favorite_24h,favorite_3d,favorite_5d,cart_24h,
+      favorite_6h,favorite_12h,favorite_24h,favorite_3d,favorite_5d,
+      cart_6h,cart_12h,cart_18h,cart_24h,
       action_sum,action_6h,action_12h,action_24h,action_3d,action_5d,
       click_to_buy,favorite_to_buy,
       action_sum,action_6h,action_12h,action_24h,action_3d,action_5d,

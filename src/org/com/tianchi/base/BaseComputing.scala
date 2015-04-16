@@ -101,11 +101,11 @@ object BaseComputing extends Serializable {
            item: RDD[(String, Array[Double])],
            user: RDD[(String, Array[Double])]): RDD[(String, Array[Double])] = {
     //和物品进行join
-    val useritemJoinItem = userItem.map { case (userItem, features) =>
-      val item = userItem.split("_")(1)
-      (item, (userItem, features))
-    }.join(item).map { case (item, ((userItem, userItemFeatures), itemFeatures)) =>
-      (userItem, userItemFeatures ++ itemFeatures)
+    val useritemJoinItem = userItem.map { case (user_item_cat_id, user_item_features) =>
+      val item_id = user_item_cat_id.split("_")(1)
+      (item_id, (user_item_cat_id, user_item_features))
+    }.join(item).map { case (item_id, ((user_item_cat_id, user_item_features), itemFeatures)) =>
+      (user_item_cat_id, user_item_features ++ itemFeatures)
     }
     val userMap = user.collect().toMap
     useritemJoinItem.map(line => {

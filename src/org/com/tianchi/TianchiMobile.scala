@@ -33,11 +33,11 @@ object TianchiMobile {
     val label_item = BaseComputing.getBuyLabel(data_user, Para.train_label_date) //获取12月17号的标签
     val feature = BaseComputing.toLablePoint(join_features, label_item) //获取标签数据
     //采样训练
-    val sample = SampleBase.globalSample(feature, 15).cache()
+    val sample = SampleBase.globalSample(feature, Para.neg_to_pos_rate).cache()
     //不同模型测试
     val model_lbfgs = new LR(sample).runLBFGS
     val model_svm = new SVM(sample).run
-    val model_gbrt = new GBRT(sample).run()
+    val model_gbrt = new GBRT(sample).run
     val model_rf = new RandomForest(sample).run
 
     val featuresS = BaseComputing.getSelectFeatureData(feature, data_item_real).cache()

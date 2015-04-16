@@ -3,8 +3,8 @@ package org.com.tianchi.data.model
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.RandomForest
 import org.apache.spark.rdd.RDD
+
 //随机森林用regression的方法
-//老杨
 class RandomForest(data:RDD[LabeledPoint]) {
   def run = {
     val categoricalFeaturesInfo = Map[Int, Int]()

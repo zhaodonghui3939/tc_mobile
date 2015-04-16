@@ -27,7 +27,7 @@ object TianchiMobile {
     val feature_user_item = new UserItemFeatures(data_feature_user_item,Para.train_start_date,Para.train_end_date).run().cache()
     //计算商品特征集
     val feature_item = new ItemFeatures(data_feature_item,Para.train_start_date,Para.train_end_date).run().cache()
-    //计算用户特征集 ccc
+    //计算用户特征集
     val feature_user = new UserFeatures(data_feature_user,Para.train_start_date,Para.train_end_date).run().cache()
     val join_features = BaseComputing.join(feature_user_item,feature_item,feature_user).cache() //特征进行join
     val label_item = BaseComputing.getBuyLabel(data_user,"2014-12-17") //获取12月17号的标签

@@ -2,7 +2,7 @@ package org.com.tianchi.data.feature
 
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.Record
-import scala.collection.mutable.ArrayBuffer
+  import scala.collection.mutable.ArrayBuffer
 
 class UserItemFeatures(data:RDD[(String,Array[Record])],begin:String,end:String) extends Serializable{
   //根据开始和结束日期获得数据

@@ -110,7 +110,6 @@ object BaseComputing extends Serializable {
     }}.join(item).map { case (item, ((userItem, userItemFeatures), itemFeatures)) => {
       (userItem, userItemFeatures ++ itemFeatures)
     }}
-
     val userMap = user.collect().toMap
     useritemJoinItem.map(line => {
       val userid = line._1.split("_")(0)

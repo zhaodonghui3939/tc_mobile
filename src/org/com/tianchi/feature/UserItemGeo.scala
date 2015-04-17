@@ -38,33 +38,33 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   //noinspection ComparingUnrelatedTypes
   def getItemRegions: RDD[(String, String)] = {
-    val item_selected_real_region = item_data.map(line => (line._1, line._2.map(p => toRegion(p.geoHash)).distinct.filter(!_.equals("")))).map {
+    item_data.map(line => (line._1, line._2.map(p => toRegion(p.geoHash)).distinct.filter(!_.equals("")))).map {
       case (item, records) =>
         if (records.length > 0) (item, records.reduce((a, b) => a + "," + b))
         else (item, "")
-    }.filter(!_._2.equals("")).collect().toMap
+    }.filter(!_._2.equals(""))
 
-    //对于未给出位置的商品，以发生在其上的行为的地点形成的区域中出现次数最多的作为该商品所在区域
-    val item_all_guess_region = itemData.map {
-      case (item_id, records) =>
-        val tmp = records.map(line => toRegion(line._2)).filter(!_.equals(""))
-        if (tmp.length == 0)
-          (item_id, "")
-        else {
-          val value = tmp.groupBy(x => x).map {
-            case (geoRegion, list) => (geoRegion, list.length)
-          }.maxBy(_._2)._1
-          (item_id, value)
-        }
-    }
-
-    item_all_guess_region.map {
-      case (item_id, region) =>
-        if (item_selected_real_region.contains(item_id))
-          (item_id, item_selected_real_region(item_id))
-        else
-          (item_id, region)
-    }
+    //    //对于未给出位置的商品，以发生在其上的行为的地点形成的区域中出现次数最多的作为该商品所在区域
+    //    val item_all_guess_region = itemData.map {
+    //      case (item_id, records) =>
+    //        val tmp = records.map(line => toRegion(line._2)).filter(!_.equals(""))
+    //        if (tmp.length == 0)
+    //          (item_id, "")
+    //        else {
+    //          val value = tmp.groupBy(x => x).map {
+    //            case (geoRegion, list) => (geoRegion, list.length)
+    //          }.maxBy(_._2)._1
+    //          (item_id, value)
+    //        }
+    //    }
+    //
+    //    item_all_guess_region.map {
+    //      case (item_id, region) =>
+    //        if (item_selected_real_region.contains(item_id))
+    //          (item_id, item_selected_real_region(item_id))
+    //        else
+    //          (item_id, region)
+    //    }
 
   }
 
@@ -119,12 +119,16 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
     }.join(userRegion).map {
       case (user_id, (item_id, userregion)) =>
         (item_id, (user_id, userregion))
-    }.join(getItemRegions).map {
-      case (item_id, ((user_id, userregion), item_region)) =>
-        val similarity = item_region.split(",").map(calRegionSimilarity(_, userregion)).max
-        (user_id + "_" + item_id, similarity)
+    }.leftOuterJoin(getItemRegions).map {
+      case (item_id, ((user_id, userregion), option_item_region)) =>
+        option_item_region match {
+          case Some(item_region) =>
+            val similarity = item_region.split(",").map(calRegionSimilarity(_, userregion)).max
+            (user_id + "_" + item_id, similarity)
+          case None =>
+            (user_id + "_" + item_id, 0)
+        }
     }
-
   }
 
   //用户最近出现的地点到商品的距离
@@ -150,10 +154,15 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
     }.map {
       case (user_id, item_id, region) =>
         (item_id, (user_id, region))
-    }.join(getItemRegions).map {
-      case (item_id, ((user_id, user_region), item_region)) =>
-        val similarity = item_region.split(",").map(calRegionSimilarity(_, user_region)).max
-        (user_id + "_" + item_id, similarity)
+    }.leftOuterJoin(getItemRegions).map {
+      case (item_id, ((user_id, userregion), option_item_region)) =>
+        option_item_region match {
+          case Some(item_region) =>
+            val similarity = item_region.split(",").map(calRegionSimilarity(_, userregion)).max
+            (user_id + "_" + item_id, similarity)
+          case None =>
+            (user_id + "_" + item_id, 0)
+        }
     }
   }
 

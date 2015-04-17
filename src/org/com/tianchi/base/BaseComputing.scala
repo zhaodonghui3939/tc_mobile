@@ -7,7 +7,6 @@ import org.apache.spark.mllib.tree.model.{GradientBoostedTreesModel, RandomFores
 import org.apache.spark.rdd.RDD
 
 //一定要序列化
-//刘强 你妹的
 object BaseComputing extends Serializable {
   //转化为LabelPoint dly 123 4 5
   def toLablePoint(data: RDD[(String, Array[Double])], label: Set[String]): RDD[(String, LabeledPoint)] = {

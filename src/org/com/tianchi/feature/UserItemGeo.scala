@@ -3,6 +3,8 @@ package org.com.tianchi.feature
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.{ItemRecord, UserRecord}
 
+import scala.collection.mutable.ArrayBuffer
+
 class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
                   item_data: RDD[(String, Array[ItemRecord])], begin: String, end: String) extends Serializable {
 
@@ -14,7 +16,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
   private val user_item_cate_data_filtered: RDD[(String, Array[UserRecord])] = user_item_data.map(line => {
     (line._1, line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
     ))
-  }).filter(_._2.length > 0) //¹ýÂËÊý¾Ý
+  }).filter(_._2.length > 0) //è¿‡æ»¤æ•°æ®
 
   private val userData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
     val user_id = user_item_cate.split("_")(0)
@@ -28,6 +30,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   val region_length = 5
 
+
   def toRegion(geoHash: String) = {
     geoHash.substring(0, region_length)
   }
@@ -40,7 +43,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
         else (item, "")
     }.filter(!_._2.equals("")).collect().toMap
 
-    //¶ÔÓÚÎ´¸ø³öÎ»ÖÃµÄÉÌÆ·£¬ÒÔ·¢ÉúÔÚÆäÉÏµÄÐÐÎªµÄµØµãÐÎ³ÉµÄÇøÓòÖÐ³öÏÖ´ÎÊý×î¶àµÄ×÷Îª¸ÃÉÌÆ·ËùÔÚÇøÓò
+    //å¯¹äºŽæœªç»™å‡ºä½ç½®çš„å•†å“ï¼Œä»¥å‘ç”Ÿåœ¨å…¶ä¸Šçš„è¡Œä¸ºçš„åœ°ç‚¹å½¢æˆçš„åŒºåŸŸä¸­å‡ºçŽ°æ¬¡æ•°æœ€å¤šçš„ä½œä¸ºè¯¥å•†å“æ‰€åœ¨åŒºåŸŸ
     val item_all_guess_region = itemData.map {
       case (item_id, records) =>
         val tmp = records.map(line => toRegion(line.geoHash)).filter(!_.equals(""))
@@ -64,7 +67,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   }
 
-  //ÇóÓÃ»§×î½ü³öÏÖµÄµØµã
+  //æ±‚ç”¨æˆ·æœ€è¿‘å‡ºçŽ°çš„åœ°ç‚¹
   def getUserRecentlyRegion(): RDD[(String, String)] = {
     userData.map {
       case (user_id, records) =>
@@ -76,7 +79,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
     }
   }
 
-  //ÇóÓÃ»§×î³£³öÏÖµÄÇøÓò
+  //æ±‚ç”¨æˆ·æœ€å¸¸å‡ºçŽ°çš„åŒºåŸŸ
   def getUserMostlyRegion() = {
     userData.map {
       case (user_id, records) =>
@@ -123,15 +126,45 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   }
 
-  def getUserRecentlyItemDistance = {
+  //ç”¨æˆ·æœ€è¿‘å‡ºçŽ°çš„åœ°ç‚¹åˆ°å•†å“çš„è·ç¦»
+  def getUserRecentlyItemDistance: RDD[(String, Int)] = {
     getUserItemDistance(getUserRecentlyRegion)
   }
 
+  //ç”¨æˆ·æœ€å¸¸å‡ºçŽ°çš„åœ°ç‚¹åˆ°å•†å“çš„è·ç¦»
   def getUserMostlyItemDistance = {
     getUserItemDistance(getUserMostlyRegion)
   }
 
-  def createUserItemGeoFeatures()={
+  //ç”¨æˆ·å¯¹è¯¥å•†å“çš„è¡Œä¸ºä¸­æœ€è¿‘ä¸€æ¬¡åœ°ç‚¹åˆ°å•†å“çš„è·ç¦»
+  def getUserItemBehaveDistance = {
+    user_item_cate_data_filtered.map { case (user_item_cate, records) =>
+      val user_id = user_item_cate.split("_")(0)
+      val item_id = user_item_cate.split("_")(1)
+      val tmp = records.sortBy(_.time).map(p => toRegion(p.geoHash)).filter(!_.equals(""))
+      if (tmp.length == 0)
+        (user_id, item_id, "")
+      else
+        (user_id, item_id, tmp(tmp.length - 1))
+    }.map {
+      case (user_id, item_id, region) =>
+        (item_id, (user_id, region))
+    }.join(getItemRegions).map {
+      case (item_id, ((user_id, user_region), item_region)) =>
+        val similarity = item_region.split(",").map(calRegionSimilarity(_, user_region)).max
+        (user_id + "_" + item_id, similarity)
+    }
+  }
 
+  //è¿™æ˜¯è¦è°ƒç”¨çš„å‡½æ•°ï¼Œä¼šæŠŠä¸‰ä¸ªè·ç¦»ç»„æˆä¸€ä¸ªArrayï¼Œè¾“å‡ºä¸º(user_id_item_id,Array(dis1,dis2,dis3))
+  def createUserItemGeoFeatures() = {
+    getUserRecentlyItemDistance.join(getUserMostlyItemDistance).map {
+      case (id, (dis1, dis2)) =>
+        val a = ArrayBuffer[Int]()
+        (id, (a += dis1 += dis2).toArray)
+    }.join(getUserItemBehaveDistance).map {
+      case (id, (dis, new_dis)) =>
+        (id, (dis :+ new_dis).map(_.toDouble))
+    }
   }
 }

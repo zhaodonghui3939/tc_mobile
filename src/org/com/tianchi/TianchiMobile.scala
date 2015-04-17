@@ -15,7 +15,7 @@ object TianchiMobile {
     val data_item_real = BaseComputing.getItemSet(data_item)
     //用户对商品的行为集合，按照时间排序 计算方便
     val data_feature_user_item = BaseComputing.getUserItemData(data_user).cache()
-    val data_geohash = BaseComputing.getItemGeoHash(data_item).cache()
+    val data_geoHash = BaseComputing.getItemGeoHash(data_item).cache()
     /*构造训练集*/
     //用户的行为集合
     val data_feature_user = BaseComputing.getUserData(data_user)
@@ -27,17 +27,14 @@ object TianchiMobile {
     //训练集特征构造和测试
     val feature_user_item = new UserItemFeatures(data_feature_user_item, Para.train_start_date, Para.train_end_date).run().cache()
 
-
-    //测试地理位置特征
-    //12345
-
-    val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
+    //测试地理位置特征（user_item_cate,geoHash),期中geoHash可能是空
+    val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
       Para.train_start_date, Para.train_end_date).getUserItemGeoHash()
 
-    val user_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
+    val user_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
       Para.train_start_date, Para.train_end_date).getUserGeohash()
 
-    val user_item_feature_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
+    val user_item_feature_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
       Para.train_start_date, Para.train_end_date).getUserItemGeoFeatures()
 
     //计算商品特征集

@@ -75,7 +75,7 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     }
     count
   }
-  //计算用户对商品的距离
+  //计算用户对商品的距离(user_item_cate,dis) dis为最近用户对该商品的行为的位置与商品位置的距离
   def getUserItemGeoFeatures():RDD[(String,Int)] = {
     getUserItemGeoHash().map {
       case (userItem, geohash) => {
@@ -87,7 +87,7 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
           case Some(itemGeo) => {
             val s = itemGeo.split(",")
             if(s.length > 1){
-              val a = ArrayBuffer[Int]();
+              val a = ArrayBuffer[Int]()
               for (c <- s) a += dis(userGeo,c)
               (userItem, a.max)
             }else (userItem, dis(userGeo,itemGeo))

@@ -22,7 +22,7 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     ""
   }
 
-  private def getItemGeoHash(): RDD[(String, String)] = {
+   def getItemGeoHash(): RDD[(String, String)] = {
     itemGeo.map(line => (line._1, line._2.map(_.geoHash).filter(!_.equals("")))).map {
       case (item, records) => {
         if (records.length > 0) (item, records.reduce((a, b) => a + "," + b))
@@ -36,11 +36,11 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     data_filtered.map {
       case (user_item_cata, records) => {
         val user = user_item_cata.split("_")(0)
-        (user, records)
+        (user, records.map(line => (line.time,line.geohash)))
       }
     }.reduceByKey((a, b) => a ++ b).map {
       case (user, records) => {
-        val t = records.sortBy(_.time).map(_.geohash).filter(!_.equals(""))
+        val t = records.sortBy(_._1).map(_._2).filter(!_.equals(""))
         if (t.length != 0) (user, t(t.length - 1))
         else (user, "")
       }
@@ -61,30 +61,14 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
   }
 
   //  //类目地址猜测，中心点作为地点
-  //  def getCatagory():RDD[(String,String)] = {
-  //
-  //  }
   //猜测商品的地址，以访问的用户的位置的中心点作为商品的地点位置,如果没有，则以类目的中心点作为距离，如何算中心，查阅geohash算法
-  //  def getItemGeohash():RDD[(String,String)]={
-  //    data_filtered.map{
-  //      case (user_item_cata,records) => {
-  //        val item = user_item_cata.split("_")(1)
-  //        (item,records)
-  //      }
-  //    }.reduceByKey((a,b) => a ++ b).map{
-  //      case (item,records) => {
-  //        val t = records.sortBy(_.time).map(_.geohash).filter(!_.equals("")) //逻辑有误，应该是访问人群的中心距离
-  //        if(t.length != 0) (item,t(t.length - 1))
-  //        else (item,"")
-  //      }
-  //    }
-  //  }
+
   private def dis(userGeo: String, itemGeo: String): Int = {
     if (userGeo.equals("") || itemGeo.equals("")) return 0
     val s1 = userGeo.toCharArray
     val s2 = itemGeo.toCharArray
     var count = 0
-    for (i <- 0 to s1.length) {
+    for (i <- 0 until s1.length) {
       if (s1(i) == s2(i)) count = count + 1
       else return count
     }
@@ -97,15 +81,17 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
         (userItem.split("_")(1), (userItem, geohash))
       }
     }.leftOuterJoin(getItemGeoHash()).map {
-      case (item, ((userItem, userGeo), Some(itemGeo))) => {
-        if( itemGeo  == null)  (userItem, 0)
-        else{
-          val s = itemGeo.split(",")
-          if(s.length > 1){
-            val a = ArrayBuffer[Int]();
-            for (c <- s) a += dis(userGeo,c)
-            (userItem, a.min)
-          }else (userItem, dis(userGeo,itemGeo))
+      case (item, ((userItem, userGeo), optionGeohash)) => {
+        optionGeohash match {
+          case Some(itemGeo) => {
+            val s = itemGeo.split(",")
+            if(s.length > 1){
+              val a = ArrayBuffer[Int]();
+              for (c <- s) a += dis(userGeo,c)
+              (userItem, a.max)
+            }else (userItem, dis(userGeo,itemGeo))
+          }
+          case None => (userItem, 0)
         }
       }
     }

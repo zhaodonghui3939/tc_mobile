@@ -14,7 +14,7 @@ class UserRecord(val record:String) extends Serializable{
   val userId = record.split(",")(0)
   val itemId = record.split(",")(1)
   val behavior = record.split(",")(2)
-  val geohash = record.split(",")(3)
+  val geoHash = record.split(",")(3)
   val category = record.split(",")(4)
   val time = stringToInt(record.split(",")(5))
 }

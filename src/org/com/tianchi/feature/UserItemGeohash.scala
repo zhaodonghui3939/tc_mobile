@@ -22,6 +22,7 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     ""
   }
 
+  //获取商品的地理位置信息，可能为空，若不为空则以逗号为分隔符连接所有地理位置信息
    def getItemGeoHash(): RDD[(String, String)] = {
     itemGeo.map(line => (line._1, line._2.map(_.geoHash).filter(!_.equals("")))).map {
       case (item, records) => {
@@ -31,12 +32,12 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     }
   }
 
-  //计算最近时间的地理位置，目前以最近的位置，有很大的改进空间，比如计算用户的
+  //计算最近时间的地理位置，目前以最近的位置，有很大的改进空间，返回（user,geo）geo为最近有行为的地理位置
   def getUserGeohash(): RDD[(String, String)] = {
     data_filtered.map {
       case (user_item_cata, records) => {
         val user = user_item_cata.split("_")(0)
-        (user, records.map(line => (line.time,line.geohash)))
+        (user, records.map(line => (line.time,line.geoHash)))
       }
     }.reduceByKey((a, b) => a ++ b).map {
       case (user, records) => {
@@ -53,9 +54,9 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     data_filtered.map {
       case (user_item_cata, records) => {
         val user = user_item_cata.split("_")(0)
-        val t = records.map(_.geohash).filter(!_.equals(""))
+        val t = records.map(_.geoHash).filter(!_.equals(""))
         if (t.length != 0) (user_item_cata, t(t.length - 1))
-        else (user_item_cata, userGeoHash(user)) //如果没有距离，则以用户的为主
+        else (user_item_cata, userGeoHash(user)) //如果没有位置信息，则以用户的为主
       }
     }
   }

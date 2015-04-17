@@ -3,6 +3,8 @@ package org.com.tianchi.feature
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.{ItemRecord, UserRecord}
 
+import scala.collection.mutable.ArrayBuffer
+
 class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
                   item_data: RDD[(String, Array[ItemRecord])], begin: String, end: String) extends Serializable {
 
@@ -14,7 +16,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
   private val user_item_cate_data_filtered: RDD[(String, Array[UserRecord])] = user_item_data.map(line => {
     (line._1, line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
     ))
-  }).filter(_._2.length > 0)
+  }).filter(_._2.length > 0) //过滤数据
 
   private val userData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
     val user_id = user_item_cate.split("_")(0)
@@ -27,6 +29,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
   }.reduceByKey((a, b) => a ++ b).cache()
 
   val region_length = 5
+
 
   def toRegion(geoHash: String) = {
     geoHash.substring(0, region_length)
@@ -123,15 +126,45 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   }
 
-  def getUserRecentlyItemDistance = {
+  //用户最近出现的地点到商品的距离
+  def getUserRecentlyItemDistance: RDD[(String, Int)] = {
     getUserItemDistance(getUserRecentlyRegion)
   }
 
+  //用户最常出现的地点到商品的距离
   def getUserMostlyItemDistance = {
     getUserItemDistance(getUserMostlyRegion)
   }
 
-  def createUserItemGeoFeatures()={
+  //用户对该商品的行为中最近一次地点到商品的距离
+  def getUserItemBehaveDistance = {
+    user_item_cate_data_filtered.map { case (user_item_cate, records) =>
+      val user_id = user_item_cate.split("_")(0)
+      val item_id = user_item_cate.split("_")(1)
+      val tmp = records.sortBy(_.time).map(p => toRegion(p.geoHash)).filter(!_.equals(""))
+      if (tmp.length == 0)
+        (user_id, item_id, "")
+      else
+        (user_id, item_id, tmp(tmp.length - 1))
+    }.map {
+      case (user_id, item_id, region) =>
+        (item_id, (user_id, region))
+    }.join(getItemRegions).map {
+      case (item_id, ((user_id, user_region), item_region)) =>
+        val similarity = item_region.split(",").map(calRegionSimilarity(_, user_region)).max
+        (user_id + "_" + item_id, similarity)
+    }
+  }
 
+  //这是要调用的函数，会把三个距离组成一个Array，输出为(user_id_item_id,Array(dis1,dis2,dis3))
+  def createUserItemGeoFeatures() = {
+    getUserRecentlyItemDistance.join(getUserMostlyItemDistance).map {
+      case (id, (dis1, dis2)) =>
+        val a = ArrayBuffer[Int]()
+        (id, (a += dis1 += dis2).toArray)
+    }.join(getUserItemBehaveDistance).map {
+      case (id, (dis, new_dis)) =>
+        (id, (dis :+ new_dis).map(_.toDouble))
+    }
   }
 }

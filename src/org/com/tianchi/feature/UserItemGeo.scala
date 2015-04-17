@@ -7,7 +7,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
                   item_data: RDD[(String, Array[ItemRecord])], begin: String, end: String) extends Serializable {
-
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
     (date1.split("-")(1).toInt - 11) * 30 * 24 + (date1.split("-")(2).toInt - 18) * 24 + date.split(" ")(1).toInt
@@ -20,19 +19,21 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   private val userData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
     val user_id = user_item_cate.split("_")(0)
-    (user_id, records)
+    (user_id, records.map(line => (line.time, line.geoHash)))
   }.reduceByKey((a, b) => a ++ b).cache()
 
   private val itemData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
     val item_id = user_item_cate.split("_")(1)
-    (item_id, records)
+    (item_id, records.map(line => (line.time, line.geoHash)))
   }.reduceByKey((a, b) => a ++ b).cache()
 
   val region_length = 5
 
-
   def toRegion(geoHash: String) = {
-    geoHash.substring(0, region_length)
+    if (geoHash == "")
+      ""
+    else
+      geoHash.substring(0, region_length)
   }
 
   //noinspection ComparingUnrelatedTypes
@@ -46,7 +47,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
     //对于未给出位置的商品，以发生在其上的行为的地点形成的区域中出现次数最多的作为该商品所在区域
     val item_all_guess_region = itemData.map {
       case (item_id, records) =>
-        val tmp = records.map(line => toRegion(line.geoHash)).filter(!_.equals(""))
+        val tmp = records.map(line => toRegion(line._2)).filter(!_.equals(""))
         if (tmp.length == 0)
           (item_id, "")
         else {
@@ -71,7 +72,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
   def getUserRecentlyRegion(): RDD[(String, String)] = {
     userData.map {
       case (user_id, records) =>
-        val tmp: Array[String] = records.sortBy(_.time).map(p => toRegion(p.geoHash)).filter(!_.equals(""))
+        val tmp: Array[String] = records.sortBy(_._1).map(p => toRegion(p._2)).filter(!_.equals(""))
         if (tmp.length == 0)
           (user_id, "")
         else
@@ -83,7 +84,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
   def getUserMostlyRegion() = {
     userData.map {
       case (user_id, records) =>
-        val tmp = records.map(line => toRegion(line.geoHash)).filter(!_.equals(""))
+        val tmp = records.map(line => toRegion(line._2)).filter(!_.equals(""))
         if (tmp.length == 0)
           (user_id, "")
         else {

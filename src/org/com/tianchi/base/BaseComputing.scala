@@ -6,7 +6,6 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.model.{GradientBoostedTreesModel, RandomForestModel}
 import org.apache.spark.rdd.RDD
 
-//ok
 //一定要序列化
 object BaseComputing extends Serializable {
   //转化为LabelPoint dly 123 4 5

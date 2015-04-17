@@ -28,20 +28,23 @@ object TianchiMobile {
     val feature_user_item = new UserItemFeatures(data_feature_user_item, Para.train_start_date, Para.train_end_date).run().cache()
 
     //测试地理位置特征（user_item_cate,geoHash),期中geoHash可能是空
-    val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
-      Para.train_start_date, Para.train_end_date).getUserItemGeoHash()
+    //    val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
+    //      Para.train_start_date, Para.train_end_date).getUserItemGeoHash()
+    //
+    //    val user_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
+    //      Para.train_start_date, Para.train_end_date).getUserGeohash()
+    //
+    //    val user_item_feature_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
+    //      Para.train_start_date, Para.train_end_date).getUserItemGeoFeatures()
 
-    val user_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
-      Para.train_start_date, Para.train_end_date).getUserGeohash()
-
-    val user_item_feature_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
-      Para.train_start_date, Para.train_end_date).getUserItemGeoFeatures()
-
+    //计算用户对商品各种距离的特征集
+    val feature_user_item_geo = new UserItemGeo(data_feature_user_item, data_geoHash,
+      Para.train_start_date, Para.train_end_date).createUserItemGeoFeatures()
     //计算商品特征集
     val feature_item = new ItemFeatures(data_feature_item, Para.train_start_date, Para.train_end_date).run().cache()
     //计算用户特征集
     val feature_user = new UserFeatures(data_feature_user, Para.train_start_date, Para.train_end_date).run().cache()
-    val join_features = BaseComputing.join(feature_user_item, feature_item, feature_user).cache() //特征进行join
+    val join_features = BaseComputing.join(feature_user_item, feature_item, feature_user, feature_user_item_geo).cache() //特征进行join
     val label_item = BaseComputing.getBuyLabel(data_user, Para.train_label_date) //获取12月17号的标签
     val feature = BaseComputing.toLablePoint(join_features, label_item) //获取标签数据
     //采样训练
@@ -70,7 +73,9 @@ object TianchiMobile {
     val test_feature_user_item = new UserItemFeatures(data_feature_user_item, Para.test_start_date, Para.test_end_date).run().cache()
     val test_feature_item = new ItemFeatures(data_feature_item, Para.test_start_date, Para.test_end_date).run().cache()
     val test_feature_user = new UserFeatures(data_feature_user, Para.test_start_date, Para.test_end_date).run().cache()
-    val test_join_features = BaseComputing.join(test_feature_user_item, test_feature_item, test_feature_user).cache() //特征进行join
+    val test_feature_user_item_geo = new UserItemGeo(data_feature_user_item, data_geoHash,
+      Para.test_start_date, Para.test_end_date).createUserItemGeoFeatures()
+    val test_join_features = BaseComputing.join(test_feature_user_item, test_feature_item, test_feature_user, test_feature_user_item_geo).cache() //特征进行join
     val test_label_item = BaseComputing.getBuyLabel(data_user, Para.test_label_date) //获取12月18号的标签
     val test_feature = BaseComputing.toLablePoint(test_join_features, test_label_item) //获取标签数据
 

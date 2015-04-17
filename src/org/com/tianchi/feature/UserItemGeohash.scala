@@ -97,14 +97,17 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
       case (userItem, geohash) => {
         (userItem.split("_")(1), (userItem, geohash))
       }
-    }.join(getItemGeoHash()).map {
-      case (item, ((userItem, userGeo), itemGeo)) => {
-        val s = itemGeo.split(",")
-        if(s.length > 1){
-          val a = ArrayBuffer[Int]();
-          for (c <- s) a += dis(userGeo,c)
-          (userGeo, a.min)
-        }else (userGeo, dis(userGeo,itemGeo))
+    }.leftOuterJoin(getItemGeoHash()).map {
+      case (item, ((userItem, userGeo), Some(itemGeo))) => {
+        if( itemGeo  == null)  (userItem, 0)
+        else{
+          val s = itemGeo.split(",")
+          if(s.length > 1){
+            val a = ArrayBuffer[Int]();
+            for (c <- s) a += dis(userGeo,c)
+            (userItem, a.min)
+          }else (userItem, dis(userGeo,itemGeo))
+        }
       }
     }
   }

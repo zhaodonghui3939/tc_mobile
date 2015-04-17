@@ -2,12 +2,10 @@ package org.com.tianchi.feature
 
 import org.apache.spark.rdd.RDD
 import org.com.tianchi.base.{ItemRecord, UserRecord}
-
 import scala.collection.mutable.ArrayBuffer
 
 class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
-                      itemGeo: RDD[(String, Array[ItemRecord])], begin: String, end: String) {
-
+                      itemGeo: RDD[(String, Array[ItemRecord])], begin: String, end: String) extends Serializable{
   //根据开始和结束日期获得数据
   private def stringToInt(date: String): Int = {
     val date1 = date.split(" ")(0)
@@ -86,10 +84,11 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
     val s1 = userGeo.toCharArray
     val s2 = itemGeo.toCharArray
     var count = 0
-    for (i <- s1.length) {
+    for (i <- 0 to s1.length) {
       if (s1(i) == s2(i)) count = count + 1
       else return count
     }
+    count
   }
   //计算用户对商品的距离
   def getUserItemGeoFeatures():RDD[(String,Int)] = {
@@ -97,14 +96,17 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
       case (userItem, geohash) => {
         (userItem.split("_")(1), (userItem, geohash))
       }
-    }.join(getItemGeoHash()).map {
-      case (item, ((userItem, userGeo), itemGeo)) => {
-        val s = itemGeo.split(",")
-        if(s.length > 1){
-          val a = ArrayBuffer[Int]();
-          for (c <- s) a += dis(userGeo,c)
-          (userGeo, a.min)
-        }else (userGeo, dis(userGeo,itemGeo))
+    }.leftOuterJoin(getItemGeoHash()).map {
+      case (item, ((userItem, userGeo), Some(itemGeo))) => {
+        if( itemGeo  == null)  (userItem, 0)
+        else{
+          val s = itemGeo.split(",")
+          if(s.length > 1){
+            val a = ArrayBuffer[Int]();
+            for (c <- s) a += dis(userGeo,c)
+            (userItem, a.min)
+          }else (userItem, dis(userGeo,itemGeo))
+        }
       }
     }
   }

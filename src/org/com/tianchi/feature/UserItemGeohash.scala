@@ -88,7 +88,7 @@ class UserItemGeohash(data: RDD[(String, Array[UserRecord])],
             if(s.length > 1){
               val a = ArrayBuffer[Int]();
               for (c <- s) a += dis(userGeo,c)
-              (userItem, a.min)
+              (userItem, a.max)
             }else (userItem, dis(userGeo,itemGeo))
           }
           case None => (userItem, 0)

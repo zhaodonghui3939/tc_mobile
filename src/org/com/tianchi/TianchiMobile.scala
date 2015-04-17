@@ -2,7 +2,7 @@ package org.com.tianchi
 
 import org.apache.spark.SparkContext
 import org.com.tianchi.base.BaseComputing
-import org.com.tianchi.feature.{UserItemGeohash, ItemFeatures, UserFeatures, UserItemFeatures}
+import org.com.tianchi.feature._
 import org.com.tianchi.global.Para
 import org.com.tianchi.model.{GBRT, LR, RandomForest, SVM}
 import org.com.tianchi.sample.SampleBase
@@ -26,12 +26,12 @@ object TianchiMobile {
 
     //训练集特征构造和测试
     val feature_user_item = new UserItemFeatures(data_feature_user_item, Para.train_start_date, Para.train_end_date).run().cache()
+
+
     //测试地理位置特征
+
     val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
-      Para.train_start_date, Para.train_end_date).getUserItemGeoHash()
-
-
-
+      Para.train_start_date, Para.train_end_date).getUserItemGeoFeatures()
 
     //计算商品特征集
     val feature_item = new ItemFeatures(data_feature_item, Para.train_start_date, Para.train_end_date).run().cache()

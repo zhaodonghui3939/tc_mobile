@@ -80,9 +80,9 @@ object BaseComputing extends Serializable {
       groupByKey().map(line => (line._1, line._2.toArray.map(new UserRecord(_)) sortBy (_.time)))
   }
 
-  def getItemGeoHash(data:RDD[String]) = {
-    data.map(line => (line.split(",")(0),line)).
-      groupByKey().map(line => (line._1,line._2.toArray.map(new ItemRecord(_))))
+  def getItemGeoHash(data: RDD[String]) = {
+    data.map(line => (line.split(",")(0), line)).
+      groupByKey().map(line => (line._1, line._2.toArray.map(new ItemRecord(_))))
   }
 
   def getUserData(data: RDD[String]) = {
@@ -104,13 +104,23 @@ object BaseComputing extends Serializable {
   //特征join
   def join(userItem: RDD[(String, Array[Double])],
            item: RDD[(String, Array[Double])],
-           user: RDD[(String, Array[Double])]): RDD[(String, Array[Double])] = {
+           user: RDD[(String, Array[Double])],
+           geo: RDD[(String, Array[Double])]): RDD[(String, Array[Double])] = {
     //和物品进行join
     val useritemJoinItem = userItem.map { case (user_item_cat_id, user_item_features) =>
       val item_id = user_item_cat_id.split("_")(1)
       (item_id, (user_item_cat_id, user_item_features))
     }.join(item).map { case (item_id, ((user_item_cat_id, user_item_features), itemFeatures)) =>
       (user_item_cat_id, user_item_features ++ itemFeatures)
+    }
+    val joinGeo = useritemJoinItem.map {
+      case (user_item_cat_id, features) =>
+        val user_id = user_item_cat_id.split("_")(0)
+        val item_id = user_item_cat_id.split("_")(0)
+        (user_id + "_" + item_id, (user_item_cat_id, features))
+    }.join(geo).map {
+      case (user_item_id, ((user_item_cat_id, features), geo_features)) =>
+        (user_item_cat_id, features ++ geo_features)
     }
     val userMap = user.collect().toMap
     useritemJoinItem.map(line => {
@@ -119,5 +129,4 @@ object BaseComputing extends Serializable {
       (line._1, result.toArray)
     })
   }
-
 }

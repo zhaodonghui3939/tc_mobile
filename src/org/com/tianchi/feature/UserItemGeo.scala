@@ -14,7 +14,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
   private val user_item_cate_data_filtered: RDD[(String, Array[UserRecord])] = user_item_data.map(line => {
     (line._1, line._2.filter(line => line.time < stringToInt(end) && line.time >= stringToInt(begin)
     ))
-  }).filter(_._2.length > 0) //¹ıÂËÊı¾İ
+  }).filter(_._2.length > 0)
 
   private val userData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
     val user_id = user_item_cate.split("_")(0)
@@ -40,7 +40,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
         else (item, "")
     }.filter(!_._2.equals("")).collect().toMap
 
-    //¶ÔÓÚÎ´¸ø³öÎ»ÖÃµÄÉÌÆ·£¬ÒÔ·¢ÉúÔÚÆäÉÏµÄĞĞÎªµÄµØµãĞÎ³ÉµÄÇøÓòÖĞ³öÏÖ´ÎÊı×î¶àµÄ×÷Îª¸ÃÉÌÆ·ËùÔÚÇøÓò
+    //å¯¹äºæœªç»™å‡ºä½ç½®çš„å•†å“ï¼Œä»¥å‘ç”Ÿåœ¨å…¶ä¸Šçš„è¡Œä¸ºçš„åœ°ç‚¹å½¢æˆçš„åŒºåŸŸä¸­å‡ºç°æ¬¡æ•°æœ€å¤šçš„ä½œä¸ºè¯¥å•†å“æ‰€åœ¨åŒºåŸŸ
     val item_all_guess_region = itemData.map {
       case (item_id, records) =>
         val tmp = records.map(line => toRegion(line.geoHash)).filter(!_.equals(""))
@@ -64,7 +64,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   }
 
-  //ÇóÓÃ»§×î½ü³öÏÖµÄµØµã
+  //æ±‚ç”¨æˆ·æœ€è¿‘å‡ºç°çš„åœ°ç‚¹
   def getUserRecentlyRegion(): RDD[(String, String)] = {
     userData.map {
       case (user_id, records) =>
@@ -76,7 +76,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
     }
   }
 
-  //ÇóÓÃ»§×î³£³öÏÖµÄÇøÓò
+  //æ±‚ç”¨æˆ·æœ€å¸¸å‡ºç°çš„åŒºåŸŸ
   def getUserMostlyRegion() = {
     userData.map {
       case (user_id, records) =>

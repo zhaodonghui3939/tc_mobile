@@ -40,9 +40,9 @@ object BaseComputing extends Serializable {
     val count = data.size
     val orgin = buyedNextDay.size
     val acc = data.filter(_._2 == 1.0).size
-    val accuracy = acc.toDouble / count
+    val precision = acc.toDouble / count
     val recall = acc.toDouble / orgin
-    "predict_num:" + count + " accuracy:" + accuracy + " recall:" + recall + " F1:" + 2 * (recall * accuracy) / (accuracy + recall)
+    "predict_num:" + count + " precision:" + precision + " recall:" + recall + " F1:" + 2 * (recall * precision) / (precision + recall)
   }
 
   def svmPredict(data: RDD[(String, LabeledPoint)], model: SVMModel, num: Int): Array[(String, Double)] = {

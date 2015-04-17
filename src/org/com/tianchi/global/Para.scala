@@ -16,7 +16,8 @@ object Para {
   val real_end_date: String = "2014-12-18 24"
 
   val neg_to_pos_rate: Int = 15
-  val result_number = 850
+  val result_number = 600
+  val rf_result_number = 500
 
   val gbt_num_iteration: Int = 40
   val gbt_tree_max_depth: Int = 5

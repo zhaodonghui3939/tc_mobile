@@ -31,6 +31,12 @@ object TianchiMobile {
     //测试地理位置特征
 
     val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
+      Para.train_start_date, Para.train_end_date).getUserItemGeoHash()
+
+    val user_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
+      Para.train_start_date, Para.train_end_date).getUserGeohash()
+
+    val user_item_feature_geohash = new UserItemGeohash(data_feature_user_item,data_geohash,
       Para.train_start_date, Para.train_end_date).getUserItemGeoFeatures()
 
     //计算商品特征集

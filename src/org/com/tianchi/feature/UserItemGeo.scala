@@ -22,10 +22,10 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
     (user_id, records.map(line => (line.time, line.geoHash)))
   }.reduceByKey((a, b) => a ++ b).cache()
 
-  private val itemData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
-    val item_id = user_item_cate.split("_")(1)
-    (item_id, records.map(line => (line.time, line.geoHash)))
-  }.reduceByKey((a, b) => a ++ b).cache()
+//  private val itemData = user_item_cate_data_filtered.map { case (user_item_cate, records) =>
+//    val item_id = user_item_cate.split("_")(1)
+//    (item_id, records.map(line => (line.time, line.geoHash)))
+//  }.reduceByKey((a, b) => a ++ b).cache()
 
   val region_length = 5
 
@@ -38,7 +38,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   //noinspection ComparingUnrelatedTypes
   def getItemRegions: RDD[(String, String)] = {
-    itemData.map(line => (line._1, line._2.map(p => toRegion(p._2)).distinct.filter(!_.equals("")))).map {
+    item_data.map(line => (line._1, line._2.map(p => toRegion(p.geoHash)).distinct.filter(!_.equals("")))).map {
       case (item, records) =>
         if (records.length > 0) (item, records.reduce((a, b) => a + "," + b))
         else (item, "")

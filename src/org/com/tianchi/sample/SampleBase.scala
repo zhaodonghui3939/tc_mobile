@@ -4,6 +4,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 
 object SampleBase {
+  //noinspection NameBooleanParameters
   //正负样本采样比例
   def globalSample(data:RDD[(String,LabeledPoint)],rate:Double): RDD[LabeledPoint]= {
     val postive = data.filter(_._2.label == 1.0).count()

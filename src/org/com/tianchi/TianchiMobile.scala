@@ -7,6 +7,8 @@ import org.com.tianchi.global.Para
 import org.com.tianchi.model.{GBRT, LR, RF, SVM}
 import org.com.tianchi.sample.SampleBase
 
+import scala.collection.immutable.HashSet
+
 object TianchiMobile {
   def main(args: Array[String]) {
     val sc = new SparkContext()
@@ -26,16 +28,6 @@ object TianchiMobile {
 
     //训练集特征构造和测试
     val feature_user_item = new UserItemFeatures(data_feature_user_item, Para.train_start_date, Para.train_end_date).run().cache()
-
-    //测试地理位置特征（user_item_cate,geoHash),期中geoHash可能是空
-    //    val user_item_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
-    //      Para.train_start_date, Para.train_end_date).getUserItemGeoHash()
-    //
-    //    val user_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
-    //      Para.train_start_date, Para.train_end_date).getUserGeohash()
-    //
-    //    val user_item_feature_geohash = new UserItemGeohash(data_feature_user_item,data_geoHash,
-    //      Para.train_start_date, Para.train_end_date).getUserItemGeoFeatures()
 
     //计算用户对商品各种距离的特征集
     val feature_user_item_geo = new UserItemGeo(data_feature_user_item, data_geoHash,
@@ -91,18 +83,18 @@ object TianchiMobile {
     //预测真实
 
 
-    /*val real_feature_user_item = new UserItemFeatures(data_feature_user_item, Para.real_start_date, Para.real_end_date).run().cache()
+    val real_feature_user_item = new UserItemFeatures(data_feature_user_item, Para.real_start_date, Para.real_end_date).run().cache()
     val real_feature_item = new ItemFeatures(data_feature_item, Para.real_start_date, Para.real_end_date).run().cache()
     val real_feature_user = new UserFeatures(data_feature_user, Para.real_start_date, Para.real_end_date).run().cache()
     val real_feature_user_item_geo = new UserItemGeo(data_feature_user_item, data_geoHash,
       Para.real_start_date, Para.real_end_date).createUserItemGeoFeatures()
     val real_join_features = BaseComputing.join(real_feature_user_item, real_feature_item, real_feature_user, real_feature_user_item_geo).cache() //特征进行join
-
-
-    val real_label_item = BaseComputing.getBuyLabel(data_user, Para.real_label_date) //获取12月18号的标签
-    val test_feature = BaseComputing.toLablePoint(real_join_features, real_label_item) //获取标签数据
-
-*/
+    val real_feature = BaseComputing.toLablePoint(real_join_features, new HashSet[String]) //获取标签数据
+    val real_featuresS = BaseComputing.getSelectFeatureData(real_feature, data_item_real).cache()
+    //测试逻辑回归
+    val real_predict_lr = BaseComputing.lrPredict(real_featuresS, model_lbfgs, Para.result_number)
+    val real_predict_rf = BaseComputing.rfPredict(real_featuresS, model_rf, Para.result_number)
+    val real_result = BaseComputing.getPredictResult(real_predict_rf)
 
   }
 }

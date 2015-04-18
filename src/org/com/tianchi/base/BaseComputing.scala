@@ -66,6 +66,16 @@ object BaseComputing extends Serializable {
     }.top(num).map(_._2)
   }
 
+  def getPredictResult(predict: Array[(String, Double)]) = {
+    predict.map {
+      case (userItem, label) => {
+        val user_id = userItem.split("_")(0)
+        val item_id = userItem.split("_")(1)
+        user_id + "," + item_id
+      }
+    }
+  }
+
   //noinspection ComparingUnrelatedTypes
   def getBuyLabel(data: RDD[String], date: String): Set[String] = {
     data.filter(_.split(",")(5).split(" ")(0).equals(date)).

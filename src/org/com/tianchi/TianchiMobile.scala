@@ -22,21 +22,21 @@ object TianchiMobile {
     //采样训练
     val sample = SampleBase.globalSample(feature, Para.neg_to_pos_rate).cache()
     //不同模型测试
-    val model_lbfgs = new LR(sample).runLBFGS
+  /*  val model_lbfgs = new LR(sample).runLBFGS
     val model_svm = new SVM(sample).run
-    val model_gbrt = new GBRT(sample).run
+    val model_gbrt = new GBRT(sample).run*/
     val model_rf = new RF(sample).run
 
     val featuresS = BaseComputing.getSelectFeatureData(feature, data_item_real).cache()
     //测试逻辑回归
-    val predict = BaseComputing.lrPredict(featuresS, model_lbfgs, Para.result_number) //逻辑回归预测
+    /*val predict = BaseComputing.lrPredict(featuresS, model_lbfgs, Para.result_number) //逻辑回归预测
     val f_lr = BaseComputing.calFvalue(predict, label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
     //测试svm的性能
     val predict_svm = BaseComputing.svmPredict(featuresS, model_svm, Para.result_number)
     val f_svm = BaseComputing.calFvalue(predict_svm, label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
     //测试gbrt的性能
     val predict_gbrt = BaseComputing.gbrtPredict(featuresS, model_gbrt, Para.result_number)
-    val f_gbrt = BaseComputing.calFvalue(predict_gbrt, label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
+    val f_gbrt = BaseComputing.calFvalue(predict_gbrt, label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息*/
     //测试rf的性能
     val predict_rf = BaseComputing.rfPredict(featuresS, model_rf, Para.result_number)
     val f_rf = BaseComputing.calFvalue(predict_rf, label_item.filter(line => data_item_real.contains(line.split("_")(1)))) //计算f值相关信息
@@ -48,8 +48,9 @@ object TianchiMobile {
     //测试集合
     val test_featuresS = BaseComputing.getSelectFeatureData(test_feature, data_item_real).cache()
     //测试逻辑回归
-    val test_predict = BaseComputing.lrPredict(test_featuresS, model_lbfgs, Para.result_number)
+   /* val test_predict = BaseComputing.lrPredict(test_featuresS, model_lbfgs, Para.result_number)
     val test_f = BaseComputing.calFvalue(test_predict, test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
+    */
     //测试rf
     val test_predict_rf = BaseComputing.rfPredict(test_featuresS, model_rf, Para.rf_result_number)
     val test_rf = BaseComputing.calFvalue(test_predict_rf, test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
@@ -59,8 +60,9 @@ object TianchiMobile {
     val real_feature = BaseComputing.toLablePoint(real_join_features, new HashSet[String]) //获取标签数据
     val real_featuresS = BaseComputing.getSelectFeatureData(real_feature, data_item_real).cache()
     //测试逻辑回归
-    val real_predict_lr = BaseComputing.lrPredict(real_featuresS, model_lbfgs, Para.result_number)
-    val real_predict_rf = BaseComputing.rfPredict(real_featuresS, model_rf, Para.result_number)
+  //  val real_predict_lr = BaseComputing.lrPredict(real_featuresS, model_lbfgs, Para.result_number)
+    //测试RF
+    val real_predict_rf = BaseComputing.rfPredict(real_featuresS, model_rf, Para.rf_result_number)
     val real_result = BaseComputing.getPredictResult(real_predict_rf)
 
   }

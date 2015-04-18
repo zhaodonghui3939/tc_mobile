@@ -10,7 +10,7 @@ class RF(data:RDD[LabeledPoint]) {
     val numTrees = 400 // Use more in practice.
     val featureSubsetStrategy = "auto" // Let the algorithm choose.
     val impurity = "variance"
-    val maxDepth = 6
+    val maxDepth = 5
     val maxBins = 32
     RandomForest.trainRegressor(data, categoricalFeaturesInfo,
       numTrees, featureSubsetStrategy, impurity, maxDepth, maxBins)

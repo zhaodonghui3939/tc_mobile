@@ -50,7 +50,7 @@ object TianchiMobile {
     //测试逻辑回归
     val test_predict = BaseComputing.lrPredict(test_featuresS, model_lbfgs, Para.result_number)
     val test_f = BaseComputing.calFvalue(test_predict, test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
-    //测试
+    //测试rf
     val test_predict_rf = BaseComputing.rfPredict(test_featuresS, model_rf, Para.rf_result_number)
     val test_rf = BaseComputing.calFvalue(test_predict_rf, test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
 

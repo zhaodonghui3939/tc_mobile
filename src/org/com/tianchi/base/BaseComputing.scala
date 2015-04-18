@@ -10,8 +10,6 @@ import org.com.tianchi.feature.{ItemFeatures, UserFeatures, UserItemFeatures, Us
 //一定要序列化
 object BaseComputing extends Serializable {
   //转化为LabelPoint dly 123 4 5
-
-
   def toLablePoint(data: RDD[(String, Array[Double])], label: Set[String]): RDD[(String, LabeledPoint)] = {
     data.map(line => {
       var s = new LabeledPoint(0.0, Vectors.dense(line._2))

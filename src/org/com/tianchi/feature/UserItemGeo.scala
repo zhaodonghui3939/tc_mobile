@@ -38,7 +38,7 @@ class UserItemGeo(user_item_data: RDD[(String, Array[UserRecord])],
 
   //noinspection ComparingUnrelatedTypes
   def getItemRegions: RDD[(String, String)] = {
-    item_data.map(line => (line._1, line._2.map(p => toRegion(p.geoHash)).distinct.filter(!_.equals("")))).map {
+    itemData.map(line => (line._1, line._2.map(p => toRegion(p._2)).distinct.filter(!_.equals("")))).map {
       case (item, records) =>
         if (records.length > 0) (item, records.reduce((a, b) => a + "," + b))
         else (item, "")

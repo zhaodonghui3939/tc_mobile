@@ -5,10 +5,13 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.model.{GradientBoostedTreesModel, RandomForestModel}
 import org.apache.spark.rdd.RDD
+import org.com.tianchi.feature.{ItemFeatures, UserFeatures, UserItemFeatures, UserItemGeo}
 
 //一定要序列化
 object BaseComputing extends Serializable {
   //转化为LabelPoint dly 123 4 5
+
+
   def toLablePoint(data: RDD[(String, Array[Double])], label: Set[String]): RDD[(String, LabeledPoint)] = {
     data.map(line => {
       var s = new LabeledPoint(0.0, Vectors.dense(line._2))
@@ -68,11 +71,10 @@ object BaseComputing extends Serializable {
 
   def getPredictResult(predict: Array[(String, Double)]) = {
     predict.map {
-      case (userItem, label) => {
+      case (userItem, label) =>
         val user_id = userItem.split("_")(0)
         val item_id = userItem.split("_")(1)
         user_id + "," + item_id
-      }
     }
   }
 
@@ -133,10 +135,35 @@ object BaseComputing extends Serializable {
         (user_item_cat_id, features ++ geo_features)
     }
     val userMap = user.collect().toMap
-    useritemJoinItem.map(line => {
+    joinGeo.map(line => {
       val userid = line._1.split("_")(0)
       val result = line._2.toBuffer ++ userMap(userid)
       (line._1, result.toArray)
     })
+  }
+
+  def createFeatureVector(data_user: RDD[String], data_item: RDD[String], start_date: String, end_date: String) = {
+
+    //用户对商品的行为集合，按照时间排序 计算方便
+    val data_feature_user_item = BaseComputing.getUserItemData(data_user).cache()
+    val data_geoHash = BaseComputing.getItemGeoHash(data_item).cache()
+    //用户的行为集合
+    val data_feature_user = BaseComputing.getUserData(data_user)
+    //商品的行为集合
+    val data_feature_item = BaseComputing.getItemData(data_user)
+    //类目的行为集合
+    val data_feature_category = BaseComputing.getCategoryData(data_user)
+
+    //训练集特征构造和测试
+    val feature_user_item = new UserItemFeatures(data_feature_user_item, start_date, end_date).run().cache()
+
+    //计算用户对商品各种距离的特征集
+    val feature_user_item_geo = new UserItemGeo(data_feature_user_item, data_geoHash,
+      start_date, end_date).createUserItemGeoFeatures()
+    //计算商品特征集
+    val feature_item = new ItemFeatures(data_feature_item, start_date, end_date).run().cache()
+    //计算用户特征集
+    val feature_user = new UserFeatures(data_feature_user, start_date, end_date).run().cache()
+    BaseComputing.join(feature_user_item, feature_item, feature_user, feature_user_item_geo).cache() //特征进行join
   }
 }

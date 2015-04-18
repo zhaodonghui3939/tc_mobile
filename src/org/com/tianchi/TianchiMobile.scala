@@ -4,7 +4,7 @@ import org.apache.spark.SparkContext
 import org.com.tianchi.base.BaseComputing
 import org.com.tianchi.feature._
 import org.com.tianchi.global.Para
-import org.com.tianchi.model.{GBRT, LR, RandomForest, SVM}
+import org.com.tianchi.model.{GBRT, LR, RF, SVM}
 import org.com.tianchi.sample.SampleBase
 
 object TianchiMobile {
@@ -53,7 +53,7 @@ object TianchiMobile {
     val model_lbfgs = new LR(sample).runLBFGS
     val model_svm = new SVM(sample).run
     val model_gbrt = new GBRT(sample).run
-    val model_rf = new RandomForest(sample).run
+    val model_rf = new RF(sample).run
 
     val featuresS = BaseComputing.getSelectFeatureData(feature, data_item_real).cache()
     //测试逻辑回归
@@ -87,5 +87,22 @@ object TianchiMobile {
     //测试
     val test_predict_rf = BaseComputing.rfPredict(test_featuresS, model_rf, Para.rf_result_number)
     val test_rf = BaseComputing.calFvalue(test_predict_rf, test_label_item.filter(line => data_item_real.contains(line.split("_")(1))))
+
+    //预测真实
+
+
+    /*val real_feature_user_item = new UserItemFeatures(data_feature_user_item, Para.real_start_date, Para.real_end_date).run().cache()
+    val real_feature_item = new ItemFeatures(data_feature_item, Para.real_start_date, Para.real_end_date).run().cache()
+    val real_feature_user = new UserFeatures(data_feature_user, Para.real_start_date, Para.real_end_date).run().cache()
+    val real_feature_user_item_geo = new UserItemGeo(data_feature_user_item, data_geoHash,
+      Para.real_start_date, Para.real_end_date).createUserItemGeoFeatures()
+    val real_join_features = BaseComputing.join(real_feature_user_item, real_feature_item, real_feature_user, real_feature_user_item_geo).cache() //特征进行join
+
+
+    val real_label_item = BaseComputing.getBuyLabel(data_user, Para.real_label_date) //获取12月18号的标签
+    val test_feature = BaseComputing.toLablePoint(real_join_features, real_label_item) //获取标签数据
+
+*/
+
   }
 }

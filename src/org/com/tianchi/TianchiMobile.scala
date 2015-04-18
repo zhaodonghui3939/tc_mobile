@@ -10,7 +10,7 @@ import org.com.tianchi.sample.SampleBase
 object TianchiMobile {
   def main(args: Array[String]) {
     val sc = new SparkContext()
-    val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).cache()
+    val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).filter(!_.split(",")(5).split(" ")(0).equals("2014-12-12")).cache()
     val data_item = sc.textFile(Para.path_data_item).filter(!_.contains("item_id"))
     val data_item_real = BaseComputing.getItemSet(data_item)
     //用户对商品的行为集合，按照时间排序 计算方便

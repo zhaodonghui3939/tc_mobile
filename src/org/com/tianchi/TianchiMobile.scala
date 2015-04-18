@@ -9,6 +9,7 @@ import org.com.tianchi.sample.SampleBase
 import scala.collection.immutable.HashSet
 
 object TianchiMobile {
+  //noinspection ComparingUnrelatedTypes
   def main(args: Array[String]) {
     val sc = new SparkContext()
     val data_user = sc.textFile(Para.path_data_user).filter(!_.contains("user_id")).filter(!_.split(",")(5).split(" ")(0).equals("2014-12-12")).cache()
